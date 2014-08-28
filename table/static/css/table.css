@@ -1,0 +1,9 @@
+/* CSS for TableXBlock */
+
+.table_block .count {
+    font-weight: bold;
+}
+
+.table_block p {
+    cursor: pointer;
+}
