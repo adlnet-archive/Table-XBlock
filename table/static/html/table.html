@@ -14,16 +14,26 @@
 		</tr>
 		
 		<!-- ko foreach: rows -->
-		<tr>
+		
 			<!-- ko if: type.match(/parent/gi) -->
-			<td>Testing "parent"</td>
+			<tr>
+				<td>
+					<span data-bind="text:value"></span>
+					<span data-bind="click:$root.addRow">+</span>
+					<!-- ko foreach: children -->
+						<tr>
+							{self._cell}
+						</tr>
+					<!-- /ko -->
+				</td>
+			</tr>
 			<!-- /ko -->
+			
 			<!-- ko ifnot: type.match(/parent/gi) -->
-			<!-- ko foreach: $root.columns -->
-			<td data-bind="text: name + ' column'"></td>
+				<tr data-bind="foreach: $root.columns">
+					{self._cell}
+				</tr>
 			<!-- /ko -->
-			<!-- /ko -->
-		</tr>
 		<!-- /ko -->
 		
 	</table>

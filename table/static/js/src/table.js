@@ -19,18 +19,20 @@ function TableXBlock(runtime, element) {
 	var bindObj = {
 		columns: ko.observableArray(),
 		rows: ko.observableArray(),
-		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight"],
+		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label"],
 		rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 		allowNewColumns: ko.observable(false),
 		allowNewRows: ko.observable(true),
+		addRow: function(obj){
+			console.log(obj);
+		}
 	}
 
-	bindObj.columns.push({name: "col1"});
-	bindObj.columns.push({name: "col2"});
-	bindObj.columns.push({name: "col3"});
-	bindObj.rows.push({type: "normal"});
-	bindObj.rows.push({type: "parent"});
-	bindObj.rows.push({type: "normal"});
+	bindObj.columns.push({name: "Workout", type: "text"});
+	bindObj.columns.push({name: "col2", type: "checkbox"});
+	bindObj.columns.push({name: "col3", type: "label"});
+	bindObj.rows.push({type: "parent", value: "Ultimate Goal", children: []});
+	bindObj.rows.push({type: "normal", value: "Week 1", children: []});
 	
     $(function ($) {
         /* Here's where you'd do things on page load. */
