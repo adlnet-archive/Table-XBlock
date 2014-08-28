@@ -1,5 +1,30 @@
 <div class="table_block">
-<p>TableXBlock: count is now
-    <span class='count'>{self.count}</span> (click me to increment).
-</p>
+	<table>
+		<tr>
+		
+			<!-- ko foreach: columns -->
+			<th>
+				<span type="text" data-bind="text: name"></span>
+			</th>
+			<!-- /ko -->
+			
+			<th>
+				<input type="text" placeholder="Enter new column name">
+			</th>
+		</tr>
+		
+		<!-- ko foreach: rows -->
+		<tr>
+			<!-- ko if: type.match(/parent/gi) -->
+			<td>Testing "parent"</td>
+			<!-- /ko -->
+			<!-- ko ifnot: type.match(/parent/gi) -->
+			<!-- ko foreach: $root.columns -->
+			<td data-bind="text: name + ' column'"></td>
+			<!-- /ko -->
+			<!-- /ko -->
+		</tr>
+		<!-- /ko -->
+		
+	</table>
 </div>

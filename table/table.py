@@ -35,6 +35,7 @@ class TableXBlock(XBlock):
         html = self.resource_string("static/html/table.html")
         frag = Fragment(html.format(self=self))
         frag.add_css(self.resource_string("static/css/table.css"))
+        frag.add_javascript(self.resource_string("static/js/lib/knockout-3.1.0.js"))
         frag.add_javascript(self.resource_string("static/js/src/table.js"))
         frag.initialize_js('TableXBlock')
         return frag
@@ -60,8 +61,6 @@ class TableXBlock(XBlock):
         return [
             ("TableXBlock",
              """<vertical_demo>
-                <table/>
-                <table/>
                 <table/>
                 </vertical_demo>
              """),
