@@ -15,7 +15,7 @@ class TableXBlock(XBlock):
     # Fields are defined on the class.  You can access them in your code as
     # self.<fieldname>.
 	
-    _cell = '''<td>
+    _cell = '''<div class="cell">
 				<!-- ko if: $data.type == "label" -->
 					<span data-bind="text: name + ' col'"></span>
 				<!-- /ko -->
@@ -26,9 +26,9 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 				
 				<!-- ko if: $data.type && $data.type.match(/checkbox/gi) -->
-					<input type="checkbox"/>
+					<input type="checkbox" />
 				<!-- /ko -->
-			</td>'''
+			</div>'''
 
     # TO-DO: delete count, and define your own fields.
     count = Integer(

@@ -1,10 +1,5 @@
 /* Javascript for TableXBlock. */
 function TableXBlock(runtime, element) {
-
-    function updateCount(result) {
-        $('.count', element).text(result.count);
-    }
-
     var handlerUrl = runtime.handlerUrl(element, 'increment_count');
 
     /*$('p', element).click(function(eventObject) {
@@ -21,34 +16,35 @@ function TableXBlock(runtime, element) {
 		rows: ko.observableArray(),
 		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label"],
 		rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
-		allowNewColumns: ko.observable(false),
-		allowNewRows: ko.observable(true),
+		allowNewColumns: true,
+		allowNewRows: true,
 		addRow: function(obj){
-			console.log(obj);
+			obj.children.push({type: "normal", value: ko.observable("Change name"), isEditing: ko.observable(false)});
 		},
 		editLabelClick: function(obj){
-			console.log(obj);
 			obj.isEditing(true);
-			//debugger;
 		},
-		editFieldKeypress: function(obj, e){
-			console.log(obj);
-			
+		editFieldKeypress: function(obj, e){			
+			//If the key pressed is Enter
 			if(e.keyCode == 13){
 				obj.isEditing(false);
 			}
-			//obj.isEditing(true);
 		},
 	}
-
+	
+	bindObj.columns.subscribe(function(newVal){
+		var perc = bindObj.allowNewColumns ? 100 / (bindObj.columns().length + 1) : 100 / bindObj.columns().length;
+		$('.table_block .cell').css('width', perc + '%');
+		
+		console.log(perc);
+	});
+	
 	bindObj.columns.push({name: "Workout", type: "text"});
 	bindObj.columns.push({name: "Checkboxes", type: "checkbox"});
 	bindObj.columns.push({name: "Labels", type: "label"});
 	
-	bindObj.rows.push({type: "parent", value: "Ultimate Goal", children: []});
-	bindObj.rows.push({value: "Week 1", children: []});
-	
-	bindObj.rows.push({type: "normal", value: ko.observable("Week 1"), children: [], isEditing: ko.observable(false)});
+	bindObj.rows.push({type: "parent", value: "Ultimate Goal", children: ko.observableArray()});
+	bindObj.rows.push({value: "Week 1", children: ko.observableArray()});
 	
     $(function ($) {
         /* Here's where you'd do things on page load. */

@@ -1,40 +1,41 @@
 <div class="table_block">
-	<table>
-		<tr>
-		
-			<!-- ko foreach: columns -->
-			<th>
-				<span type="text" data-bind="text: name"></span>
-			</th>
-			<!-- /ko -->
-			
-			<th>
-				<input type="text" placeholder="Enter new column name">
-			</th>
-		</tr>
-		
-		<!-- ko foreach: rows -->
-		
-			<!-- ko if: !$data.type || type.match(/parent/gi) -->
-			<tr>
-				<td>
-					<span data-bind="text:value"></span>
-					<span data-bind="click:$root.addRow">+</span>
-					<div data-bind="foreach: children">
-						<tr>
-							{self._cell}
-						</tr>
-					</div>
-				</td>
-			</tr>
-			<!-- /ko -->
-			
-			<!-- ko if: $data.type && !type.match(/parent/gi) -->
-				<tr data-bind="foreach: $root.columns">
-					{self._cell}
-				</tr>
-			<!-- /ko -->
+	<div class="row header bottom">
+	
+		<!-- ko foreach: columns -->
+		<div class="cell">
+			<span type="text" data-bind="text: name"></span>
+		</div>
 		<!-- /ko -->
 		
-	</table>
+		<div class="cell">
+			<input type="text" placeholder="Enter new column name">
+		</div>
+	</div>
+
+	<!-- ko foreach: rows -->
+		<div class="row bottom">
+			<!-- ko if: !$data.type || type.match(/parent/gi) -->
+			<div class="header row parent">
+				<span data-bind="text:value"></span>				
+			</div>
+			<div class="row">
+				<div class="cell"><span data-bind="click:$root.addRow">Add item</span></div>
+			</div>
+			<!-- /ko -->
+			<!-- ko if: (!$data.type || type.match(/parent/gi)) && $data.children && children().length > 0 -->
+				
+				<!-- ko foreach: $data.children -->
+					<div class="row" data-bind="foreach: $root.columns">
+						{self._cell}
+					</div>
+				<!-- /ko -->
+				
+			<!-- /ko -->
+			<!-- ko if: $data.type && !type.match(/parent/gi) -->
+				<div class="row" data-bind="foreach: $root.columns">
+					{self._cell}
+				</div>
+			<!-- /ko -->
+		</div>
+	<!-- /ko -->
 </div>
