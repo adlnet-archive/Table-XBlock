@@ -16,15 +16,17 @@ class TableXBlock(XBlock):
     # self.<fieldname>.
 	
     _cell = '''<td>
-				<!-- ko if: type == "label" -->
-				<span data-bind="text: name + ' col'"></span>
+				<!-- ko if: $data.type == "label" -->
+					<span data-bind="text: name + ' col'"></span>
 				<!-- /ko -->
-				<!-- ko if: type == "text" -->
-				<span data-bind="text: name"></span>
-				<input type="text" data-bind="attr: {placeholder: name}"/>
+				
+				<!-- ko if: $data.type == "text" -->
+					<span data-bind="text: $parent.value, visible: !$parent.isEditing(), click: function(){$root.editLabelClick($parent)}"></span>
+					<input type="text" data-bind="value: $parent.value, attr: {placeholder: name}, visible: $parent.isEditing, hasFocus: $parent.isEditing, event: {keyup: function(o, e){$root.editFieldKeypress($parent, e)}}" />
 				<!-- /ko -->
-				<!-- ko if: type.match(/checkbox/gi) -->
-				<input type="checkbox"/>
+				
+				<!-- ko if: $data.type && $data.type.match(/checkbox/gi) -->
+					<input type="checkbox"/>
 				<!-- /ko -->
 			</td>'''
 

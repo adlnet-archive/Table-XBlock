@@ -15,21 +15,21 @@
 		
 		<!-- ko foreach: rows -->
 		
-			<!-- ko if: type.match(/parent/gi) -->
+			<!-- ko if: !$data.type || type.match(/parent/gi) -->
 			<tr>
 				<td>
 					<span data-bind="text:value"></span>
 					<span data-bind="click:$root.addRow">+</span>
-					<!-- ko foreach: children -->
+					<div data-bind="foreach: children">
 						<tr>
 							{self._cell}
 						</tr>
-					<!-- /ko -->
+					</div>
 				</td>
 			</tr>
 			<!-- /ko -->
 			
-			<!-- ko ifnot: type.match(/parent/gi) -->
+			<!-- ko if: $data.type && !type.match(/parent/gi) -->
 				<tr data-bind="foreach: $root.columns">
 					{self._cell}
 				</tr>

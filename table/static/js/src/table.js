@@ -25,18 +25,37 @@ function TableXBlock(runtime, element) {
 		allowNewRows: ko.observable(true),
 		addRow: function(obj){
 			console.log(obj);
-		}
+		},
+		editLabelClick: function(obj){
+			console.log(obj);
+			obj.isEditing(true);
+			//debugger;
+		},
+		editFieldKeypress: function(obj, e){
+			console.log(obj);
+			
+			if(e.keyCode == 13){
+				obj.isEditing(false);
+			}
+			//obj.isEditing(true);
+		},
 	}
 
 	bindObj.columns.push({name: "Workout", type: "text"});
-	bindObj.columns.push({name: "col2", type: "checkbox"});
-	bindObj.columns.push({name: "col3", type: "label"});
+	bindObj.columns.push({name: "Checkboxes", type: "checkbox"});
+	bindObj.columns.push({name: "Labels", type: "label"});
+	
 	bindObj.rows.push({type: "parent", value: "Ultimate Goal", children: []});
-	bindObj.rows.push({type: "normal", value: "Week 1", children: []});
+	bindObj.rows.push({value: "Week 1", children: []});
+	
+	bindObj.rows.push({type: "normal", value: ko.observable("Week 1"), children: [], isEditing: ko.observable(false)});
 	
     $(function ($) {
         /* Here's where you'd do things on page load. */
 		
+		$(element).on('click', '.editableLabel', function(){
+			$(this).hide();
+		});
 		ko.applyBindings(bindObj, element);
     });
 }
