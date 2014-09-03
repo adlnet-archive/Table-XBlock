@@ -10,7 +10,7 @@ function TableXBlock(runtime, element) {
             success: updateCount
         });
     });*/
-	
+	var currentRow;
 	var bindObj = {
 		columns: ko.observableArray(),
 		rows: ko.observableArray(),
@@ -20,7 +20,8 @@ function TableXBlock(runtime, element) {
 		allowNewRows: true,
 		tempRow: ko.observable(false),
 		addTempRow: function(obj){
-			bindObj.tempRow({type: "normal", value: ko.observable("Change name"), isEditing: ko.observable(false)});
+			bindObj.tempRow({type: ko.observable("normal"), value: ko.observable(""), isEditing: ko.observable(false)});
+			currentRow = obj;
 		},
 		editLabelClick: function(obj){
 			obj.isEditing(true);
@@ -32,36 +33,49 @@ function TableXBlock(runtime, element) {
 			}
 		},
 		pushRow: function(){
-			obj.children.push(bindObj.tempRow);
+			currentRow.children.push(bindObj.tempRow());
+			bindObj.cancelModal();
 		},
 		cancelModal: function(){
 			bindObj.tempRow(false);
+		},
+		addAppendableRow: function(obj){
+			var currentArr = bindObj.rows();
+			var i = bindObj.rows.indexOf(obj);
+			var number = obj.value.match(/[0-9]+/);
+			
+			if(i > -1 && Array.isArray(number)){
+				obj.type("parent");
+				bindObj.rows(currentArr.slice(0, i + 1));
+				bindObj.rows().push({type: ko.observable("parentAppendable"), value: obj.name + ' ' + (+number[0] + 1), name: obj.name, children: ko.observableArray()});
+				Array.prototype.push.apply(bindObj.rows(), currentArr.slice(i + 1, currentArr.length));
+				bindObj.rows.valueHasMutated();
+				
+				console.log(obj);
+			}
+			else console.log("Not found");
 		}
 	}
 	
 	bindObj.columns.subscribe(function(newVal){
 		var perc = bindObj.allowNewColumns ? 100 / (bindObj.columns().length + 1) : 100 / bindObj.columns().length;
-		$('.table_block .cell').css('width', perc + '%');
+		$('.table_block .cell').not('#table_modal .cell').css('width', perc + '%');
 		
 		console.log(perc);
 	});
 	
-	bindObj.columns.push({name: "Workout Name", type: "text"});
+	bindObj.columns.push({name: "Exercise Name", placeholder: "[Enter exercise name]", type: "text"});
 	bindObj.columns.push({name: "Mobility Related?", type: "checkbox"});
 	bindObj.columns.push({name: "Random Label", type: "label"});
 	
-	bindObj.rows.push({type: "parent", value: "Ultimate Goal", children: ko.observableArray()});
-	bindObj.rows.push({value: "Week 1", children: ko.observableArray()});
+	bindObj.rows.push({type: ko.observable("parent"), value: "Ultimate Goal", children: ko.observableArray()});
+	bindObj.rows.push({type: ko.observable("parentAppendable"), value: "Week 1", name: 'Week', children: ko.observableArray()});
 	
     $(function ($) {
         /* Here's where you'd do things on page load. */
 		
 		$(element).on('click', '.editableLabel', function(){
 			$(this).hide();
-		});
-		
-		$('#table_overlay').click(function(){
-			bindObj.cancelModal();			
 		});
 		
 		ko.applyBindings(bindObj, element);
