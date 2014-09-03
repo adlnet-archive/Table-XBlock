@@ -28,7 +28,7 @@ class TableXBlock(XBlock):
 				<!-- ko if: $data.type && $data.type.match(/checkbox/gi) -->
 					<input type="checkbox" />
 				<!-- /ko -->
-			</div>'''
+			</div>'''	
 
     # TO-DO: delete count, and define your own fields.
     count = Integer(

@@ -18,8 +18,9 @@ function TableXBlock(runtime, element) {
 		rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 		allowNewColumns: true,
 		allowNewRows: true,
-		addRow: function(obj){
-			obj.children.push({type: "normal", value: ko.observable("Change name"), isEditing: ko.observable(false)});
+		tempRow: ko.observable(false),
+		addTempRow: function(obj){
+			bindObj.tempRow({type: "normal", value: ko.observable("Change name"), isEditing: ko.observable(false)});
 		},
 		editLabelClick: function(obj){
 			obj.isEditing(true);
@@ -30,6 +31,12 @@ function TableXBlock(runtime, element) {
 				obj.isEditing(false);
 			}
 		},
+		pushRow: function(){
+			obj.children.push(bindObj.tempRow);
+		},
+		cancelModal: function(){
+			bindObj.tempRow(false);
+		}
 	}
 	
 	bindObj.columns.subscribe(function(newVal){
@@ -39,9 +46,9 @@ function TableXBlock(runtime, element) {
 		console.log(perc);
 	});
 	
-	bindObj.columns.push({name: "Workout", type: "text"});
-	bindObj.columns.push({name: "Checkboxes", type: "checkbox"});
-	bindObj.columns.push({name: "Labels", type: "label"});
+	bindObj.columns.push({name: "Workout Name", type: "text"});
+	bindObj.columns.push({name: "Mobility Related?", type: "checkbox"});
+	bindObj.columns.push({name: "Random Label", type: "label"});
 	
 	bindObj.rows.push({type: "parent", value: "Ultimate Goal", children: ko.observableArray()});
 	bindObj.rows.push({value: "Week 1", children: ko.observableArray()});
@@ -52,6 +59,11 @@ function TableXBlock(runtime, element) {
 		$(element).on('click', '.editableLabel', function(){
 			$(this).hide();
 		});
+		
+		$('#table_overlay').click(function(){
+			bindObj.cancelModal();			
+		});
+		
 		ko.applyBindings(bindObj, element);
     });
 }

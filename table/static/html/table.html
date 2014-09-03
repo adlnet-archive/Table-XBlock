@@ -1,41 +1,55 @@
 <div class="table_block">
-	<div class="row header bottom">
+	<div id="table_modal" data-bind="with: tempRow, visible:tempRow()">
 	
-		<!-- ko foreach: columns -->
-		<div class="cell">
-			<span type="text" data-bind="text: name"></span>
-		</div>
-		<!-- /ko -->
-		
-		<div class="cell">
-			<input type="text" placeholder="Enter new column name">
-		</div>
-	</div>
-
-	<!-- ko foreach: rows -->
-		<div class="row bottom">
-			<!-- ko if: !$data.type || type.match(/parent/gi) -->
-			<div class="header row parent">
-				<span data-bind="text:value"></span>				
+		 <!-- ko foreach: $root.columns -->
+			<div class="row header bottom">
+				<div class="cell">
+					<span type="text" data-bind="text: name"></span>
+				</div>				
+				{self._cell}
 			</div>
-			<div class="row">
-				<div class="cell"><span data-bind="click:$root.addRow">Add item</span></div>
+		<!-- /ko -->
+	</div>
+	<div id="table_container">
+		<div class="row header bottom">
+		
+			<!-- ko foreach: columns -->
+			<div class="cell">
+				<span type="text" data-bind="text: name"></span>
 			</div>
 			<!-- /ko -->
-			<!-- ko if: (!$data.type || type.match(/parent/gi)) && $data.children && children().length > 0 -->
-				
-				<!-- ko foreach: $data.children -->
+			
+			<div class="cell">
+				<input type="text" placeholder="Enter new column name">
+			</div>
+		</div>
+
+		<!-- ko foreach: rows -->
+			<div class="row bottom">
+				<!-- ko if: !$data.type || type.match(/parent/gi) -->
+				<div class="header row parent">
+					<span data-bind="text:value"></span>				
+				</div>
+				<div class="row">
+					<div class="cell"><span data-bind="click:$root.addTempRow">Add item</span></div>
+				</div>
+				<!-- /ko -->
+				<!-- ko if: (!$data.type || type.match(/parent/gi)) && $data.children && children().length > 0 -->
+					
+					<!-- ko foreach: $data.children -->
+						<div class="row" data-bind="foreach: $root.columns">
+							{self._cell}
+						</div>
+					<!-- /ko -->
+					
+				<!-- /ko -->
+				<!-- ko if: $data.type && !type.match(/parent/gi) -->
 					<div class="row" data-bind="foreach: $root.columns">
 						{self._cell}
 					</div>
 				<!-- /ko -->
-				
-			<!-- /ko -->
-			<!-- ko if: $data.type && !type.match(/parent/gi) -->
-				<div class="row" data-bind="foreach: $root.columns">
-					{self._cell}
-				</div>
-			<!-- /ko -->
-		</div>
-	<!-- /ko -->
+			</div>
+		<!-- /ko -->
+	</div>
+	<div id="table_overlay" data-bind="visible:tempRow()"></div>	
 </div>
