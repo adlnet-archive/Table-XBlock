@@ -71,13 +71,13 @@ function TableXBlock(runtime, element) {
 	bindObj.rows.push({type: ko.observable("parent"), value: "Ultimate Goal", children: ko.observableArray()});
 	bindObj.rows.push({type: ko.observable("parentAppendable"), value: "Week 1", name: 'Week', children: ko.observableArray()});
 	
-    $(function ($) {
+    //$(document).ready(function () {
         /* Here's where you'd do things on page load. */
-		
+		console.log("test");
 		$(element).on('click', '.editableLabel', function(){
 			$(this).hide();
 		});
-		
-		ko.applyBindings(bindObj, element);
-    });
+		//debugger;
+		ko.applyBindings(bindObj, (element instanceof $ ? element[0] : element));
+   // });
 }
