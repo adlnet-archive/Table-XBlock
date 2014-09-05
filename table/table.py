@@ -30,7 +30,7 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 			</div>'''	
 			
-	tableStructure = String(default="", scope=Scope.settings, help="Options that will determine the table structure presented to users")
+	tableStructure = String(default="fun test", scope=Scope.settings, help="Options that will determine the table structure presented to users")
 	display_name = String(display_name="Display Name", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
 
 	# TO-DO: delete count, and define your own fields.
@@ -50,11 +50,17 @@ class TableXBlock(XBlock):
 		The primary view of the TableXBlock, shown to students
 		when viewing courses.
 		"""
+		
 		html = self.resource_string("static/html/table.html")
 		frag = Fragment(html.format(self=self))
 		frag.add_css(self.resource_string("static/css/table.css"))
 		frag.add_javascript(self.resource_string("static/js/lib/knockout-3.1.0.js"))
-		frag.add_javascript(self.resource_string("static/js/src/table.js"))
+		frag.add_javascript(self.resource_string("static/js/lib/knockout.mapping-latest.debug.js"))
+		
+		js = self.resource_string("static/js/src/table.js")
+		tab = self.tableStructure
+		
+		frag.add_javascript(js.replace('{{replaceMe}}', tab))
 		frag.initialize_js('TableXBlock')
 		return frag
 		
@@ -62,9 +68,8 @@ class TableXBlock(XBlock):
 	def studio_view(self, context=None):
 		html = self.resource_string("static/html/table_edit.html")
 		frag = Fragment(html.format(self=self))
-		frag.add_javascript(self.resource_string("static/js/lib/knockout-3.1.0.js"))
 		
-		frag.initialize_js('TableXBlock')
+		frag.initialize_js('StudioTableXBlock')
 		return frag
 
 	# TO-DO: change this handler to perform your own actions.  You may need more
@@ -77,8 +82,8 @@ class TableXBlock(XBlock):
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
 
-		self.count += 1
-		return {"count": self.count}
+		self.tableStructure = data
+		return {"table": self.tableStructure}
 
 	# TO-DO: change this to create the scenarios you'd like to see in the
 	# workbench while developing your XBlock.

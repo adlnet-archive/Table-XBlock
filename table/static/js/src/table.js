@@ -1,7 +1,8 @@
 /* Javascript for TableXBlock. */
+window.bindObj, window.studioBindObj;
 function TableXBlock(runtime, element) {
     var handlerUrl = runtime.handlerUrl(element, 'increment_count');
-
+	console.log("Not studio!");
     /*$('p', element).click(function(eventObject) {
         $.ajax({
             type: "POST",
@@ -10,8 +11,11 @@ function TableXBlock(runtime, element) {
             success: updateCount
         });
     });*/
+    
+    // {{replaceMe}}
+    
 	var currentRow;
-	var bindObj = {
+	bindObj = {
 		columns: ko.observableArray(),
 		rows: ko.observableArray(),
 		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label"],
@@ -80,4 +84,43 @@ function TableXBlock(runtime, element) {
 		//debugger;
 		ko.applyBindings(bindObj, (element instanceof $ ? element[0] : element));
    // });
+}
+/* Javascript for studio view TableXBlock. */
+function StudioTableXBlock(runtime, element) {
+    console.log("Studio");
+    var handlerUrl = runtime.handlerUrl(element, 'save_admin_settings');
+    
+    $(element).find('.save-button').bind('click', function(e) {
+        
+        e.stopPropagation();
+        runtime.notify('cancel', {});
+        
+        var handlerUrl = runtime.handlerUrl(element, 'save_admin_settings');
+        var outObj = ko.toJSON(studioBindObj);
+        
+        $.post(handlerUrl, outObj, function(res){
+			console.log("This is the response: ", res);
+		});
+        
+       
+    });
+    
+    var currentRow;
+	studioBindObj = {
+		columns: ko.observableArray(),
+		rows: ko.observableArray(),
+		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label"],
+		rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
+		allowNewColumns: true,
+		allowNewRows: true,
+		addColumn: function(){
+			studioBindObj.columns.push({name: ko.observable("[Column name]"), placeholder: ko.observable(""), type: ko.observable("text")});
+		},
+		addRow: function(){
+			studioBindObj.rows.push({name: ko.observable("[Row name]"), type: ko.observable("normal")});
+		}
+	};
+	
+
+	ko.applyBindings(studioBindObj, (element instanceof $ ? element[0] : element));
 }

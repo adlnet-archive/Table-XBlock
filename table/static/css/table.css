@@ -17,8 +17,18 @@ button{
 	margin-top: 10px;
 }
 
+.table_block .nfRow .cell{
+	margin: 0 5px;
+}
+.table_block .nfRow{
+	width: 100%;
+	clear: both;
+	overflow: hidden;
+	min-height: 30px;
+}
+
 .table_block .cell{
-	width: 40%;
+	width: 25% !important;
 	float: left;
 }
 
