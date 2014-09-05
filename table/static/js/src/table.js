@@ -13,6 +13,7 @@ function TableXBlock(runtime, element) {
     });*/
     
     // {{replaceMe}}
+    debugger;
     
 	var currentRow;
 	bindObj = {
@@ -96,10 +97,16 @@ function StudioTableXBlock(runtime, element) {
         runtime.notify('cancel', {});
         
         var handlerUrl = runtime.handlerUrl(element, 'save_admin_settings');
-        var outObj = ko.toJSON(studioBindObj);
-        
-        $.post(handlerUrl, outObj, function(res){
-			console.log("This is the response: ", res);
+        var outObj = JSON.stringify(ko.toJS(studioBindObj));
+
+		$.ajax({
+		  type: "POST",
+		  url: handlerUrl,
+		  data: outObj,
+		  complete: function(res){
+			  console.log("This is the response: ", res);
+		  },
+		  contentType: "application/json; charset=UTF-8",
 		});
         
        

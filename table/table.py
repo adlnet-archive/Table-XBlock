@@ -1,9 +1,10 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import pkg_resources
+import json
 
 from xblock.core import XBlock
-from xblock.fields import Scope, Integer, String
+from xblock.fields import Scope, Integer, String, Dict
 from xblock.fragment import Fragment
 
 
@@ -30,7 +31,7 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 			</div>'''	
 			
-	tableStructure = String(default="fun test", scope=Scope.settings, help="Options that will determine the table structure presented to users")
+	tableStructure = Dict(default={}, scope=Scope.settings, help="Options that will determine the table structure presented to users")
 	display_name = String(display_name="Display Name", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
 
 	# TO-DO: delete count, and define your own fields.
@@ -60,7 +61,7 @@ class TableXBlock(XBlock):
 		js = self.resource_string("static/js/src/table.js")
 		tab = self.tableStructure
 		
-		frag.add_javascript(js.replace('{{replaceMe}}', tab))
+		frag.add_javascript(js.replace('{{replaceMe}}', json.dumps(tab)))
 		frag.initialize_js('TableXBlock')
 		return frag
 		
@@ -82,8 +83,8 @@ class TableXBlock(XBlock):
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
 
-		self.tableStructure = data
-		return {"table": self.tableStructure}
+		#self.tableStructure = data
+		return self.tableStructure
 
 	# TO-DO: change this to create the scenarios you'd like to see in the
 	# workbench while developing your XBlock.
