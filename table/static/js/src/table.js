@@ -5,12 +5,9 @@ function TableXBlock(runtime, element) {
 		console.log("Student view already generated");
 		return;
 	}
-    
-    var handlerUrl = runtime.handlerUrl(element, 'increment_count');    
-    var bindObj;
+
 	var currentRow;
-	
-	window.bindObj = bindObj = {
+	var bindObj = window.bindObj = {
 		columns: ko.observableArray(),
 		rows: ko.observableArray(),
 		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label"],
@@ -42,14 +39,20 @@ function TableXBlock(runtime, element) {
 			bindObj.tempRow(false);
 		},
 		addAppendableRow: function(obj){
+			
 			var currentArr = bindObj.rows();
 			var i = bindObj.rows.indexOf(obj);
-			var number = obj.value.match(/[0-9]+/);
+			var number = obj.value().match(/[0-9]+/);
 			
 			if(i > -1 && Array.isArray(number)){
 				obj.type("parent");
 				bindObj.rows(currentArr.slice(0, i + 1));
-				bindObj.rows().push({type: ko.observable("parentAppendable"), value: obj.name + ' ' + (+number[0] + 1), name: obj.name, children: ko.observableArray()});
+				bindObj.rows().push({
+					type: ko.observable("parentAppendable"), 
+					value: ko.observable(obj.name() + ' ' + (+number[0] + 1)), 
+					name: ko.observable(obj.name()), 
+					children: ko.observableArray()
+				});
 				Array.prototype.push.apply(bindObj.rows(), currentArr.slice(i + 1, currentArr.length));
 				bindObj.rows.valueHasMutated();
 				
@@ -65,30 +68,23 @@ function TableXBlock(runtime, element) {
 		
 		console.log(perc);
 		for(var i = 0; i < bindObj.rows().length; i++){
-			newVal.values.push({v: ko.observable(""), isEditing: ko.observable(false)});
+			bindObj.rows()[i].values.push({v: ko.observable(""), isEditing: ko.observable(false)});
 		}
 	});	
 	
 	bindObj.rows.subscribe(initRowValues);
 	
 	function initRowValues(useObj, obj){
-		var lastRow = useObj === true ? obj : bindObj.rows()[bindObj.rows().length - 1];
-		if(bindObj.rows().length - 1 >= 0 && lastRow){
+		obj = useObj === true ? obj : bindObj.rows()[bindObj.rows().length - 1];
+		if(bindObj.rows().length - 1 >= 0 && obj && !Array.isArray(obj.type().match(/parent/i))){
 			for(var i = 0; i < bindObj.columns().length; i++){
-				lastRow.values.push({v: ko.observable(""), isEditing: ko.observable(false)});
+				obj.values.push({v: ko.observable(""), isEditing: ko.observable(false)});
 			}
 		}	
 	}
 	
 	initBindObj();
-	
-	bindObj.columns.push({name: "Exercise Name", placeholder: "[Enter exercise name]", type: "text"});
-	bindObj.columns.push({name: "Mobility Related?", type: "checkbox"});
-	bindObj.columns.push({name: "Random Label", type: "label"});
-	
-	bindObj.rows.push({type: ko.observable("parent"), value: "Ultimate Goal", children: ko.observableArray(), values: ko.observableArray()});
-	bindObj.rows.push({type: ko.observable("parentAppendable"), value: "Week 1", name: 'Week', children: ko.observableArray(), values: ko.observableArray()});
-	
+
     //$(document).ready(function () {
         /* Here's where you'd do things on page load. */
 		console.log("test");
@@ -107,8 +103,7 @@ function StudioTableXBlock(runtime, element) {
         e.stopPropagation();
         runtime.notify('cancel', {});
         updateBindObj();
-        
-        var handlerUrl = runtime.handlerUrl(element, 'save_admin_settings');
+
         var outObj = JSON.stringify(ko.mapping.toJS(window.studioBindObj));
 
 		$.ajax({
@@ -136,10 +131,18 @@ function updateBindObj(){
 	var columnsArr = ko.toJS(window.studioBindObj.columns);
 	
 	for(var i = 0; i < rowsArr.length; i++){
-	
-		rowsArr[i].value = ko.observable("");
 		
-		if(!Array.isArray(rowsArr[i].type().match(/parent/i))){
+		rowsArr[i].value = rowsArr[i].value ? rowsArr[i].value : ko.observable(rowsArr[i].name());
+		rowsArr[i].values = rowsArr[i].values ? rowsArr[i].values : ko.observableArray("");
+		
+		if(Array.isArray(rowsArr[i].type().match(/parent/i))){
+			rowsArr[i].children = ko.observableArray();
+			
+			if(rowsArr[i].type() === "parentAppendable"){
+				rowsArr[i].value(rowsArr[i].value() + " 1");
+			}
+		}
+		else{
 			rowsArr[i].isEditing = ko.observable(false);
 		}
 		
@@ -177,6 +180,6 @@ function initBindObj(){
 		window.studioBindObj.columns.push({name: ko.observable("[Column name]"), placeholder: ko.observable(""), type: ko.observable("text")});
 	}
 	function addRow(){
-		window.studioBindObj.rows.push({name: ko.observable("[Row name]"), type: ko.observable("normal"), values: ko.observableArray()});
+		window.studioBindObj.rows.push({name: ko.observable("[Row name]"), type: ko.observable("normal")});
 	}
 }

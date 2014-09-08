@@ -18,7 +18,7 @@ class TableXBlock(XBlock):
 	
 	_cell = '''<div class="cell">
 				<!-- ko if: $data.type == "label" -->
-					<span data-bind="text: name + ' col'"></span>
+					<span data-bind="text: name() + ' col'"></span>
 				<!-- /ko -->
 				
 				<!-- ko if: $data.type == "text" -->
@@ -51,7 +51,6 @@ class TableXBlock(XBlock):
 		The primary view of the TableXBlock, shown to students
 		when viewing courses.
 		"""
-		
 		html = self.resource_string("static/html/table.html")
 		frag = Fragment(html.format(self=self))
 		frag.add_css(self.resource_string("static/css/table.css"))

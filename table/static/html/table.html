@@ -27,7 +27,7 @@
 						<div class="cell"><button data-bind="click:$root.addTempRow">Add item</button></div>
 					</div>
 					<div class="table_add_parent" data-bind="if:$data.type() == 'parentAppendable'">
-						<button data-bind="text: 'Add ' + name, click: $root.addAppendableRow"></button>
+						<button data-bind="text: 'Add ' + name(), click: $root.addAppendableRow"></button>
 					</div>
 				<!-- /ko -->
 				<!-- ko if: !type().match(/parent/gi) -->
