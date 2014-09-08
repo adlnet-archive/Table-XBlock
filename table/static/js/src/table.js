@@ -10,7 +10,7 @@ function TableXBlock(runtime, element) {
 	var bindObj = window.bindObj = {
 		columns: ko.observableArray(),
 		rows: ko.observableArray(),
-		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label"],
+		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number"],
 		rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 		allowNewColumns: true,
 		allowNewRows: true,
@@ -165,7 +165,7 @@ function initBindObj(){
 		window.studioBindObj = {
 			columns: ko.observableArray(),
 			rows: ko.observableArray(),
-			columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label"],
+			columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number"],
 			rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 			allowNewColumns: true,
 			allowNewRows: true,

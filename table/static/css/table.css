@@ -8,6 +8,10 @@ button{
 	overflow: hidden;
 }
 
+.table_block input, .table_block textarea{
+	width: 90%;
+}
+
 .table_block .row{
 	width: 100%;
 	clear: both;
@@ -28,8 +32,9 @@ button{
 }
 
 .table_block .cell{
-	width: 25% !important;
+	width: 25%;
 	float: left;
+	text-align: center;
 }
 
 .table_block .header{

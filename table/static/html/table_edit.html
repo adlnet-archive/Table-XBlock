@@ -14,16 +14,16 @@
 					<span class="tip setting-help">The title of the chart that is displayed to the user</span>
 				</div>
 				<div class="nfRow" data-bind="if:columns().length > 0">
-					<div class="cell">Column Label</div>
-					<div class="cell">Placeholder Text</div>
-					<div class="cell">Type</div>
+					<div class="cell" style="width:25%;">Column Label</div>
+					<div class="cell" style="width:25%;">Placeholder Text</div>
+					<div class="cell" style="width:25%;">Type</div>
 				</div>
 				<!-- ko foreach: columns -->
 				<div class="nfRow">
 									
-					<input class="input setting-input cell" data-bind="value:name" type="text">
-					<input class="input setting-input cell" data-bind="value:$data.placeholder" type="text">
-					<select class="input setting-input cell" data-bind="options:$root.columnTypes, value: type"></select>
+					<input class="input setting-input cell" style="width:25%;" data-bind="value:name" type="text">
+					<input class="input setting-input cell" style="width:25%;" data-bind="value:$data.placeholder" type="text">
+					<select class="input setting-input cell" style="width:25%;" data-bind="options:$root.columnTypes, value: type"></select>
 				
 				</div>
 				<!-- /ko -->
@@ -36,14 +36,14 @@
 					<span class="tip setting-help">The title of the chart that is displayed to the user</span>
 				</div>
 				<div class="nfRow" data-bind="if:rows().length > 0">
-					<div class="cell">Row Label</div>
-					<div class="cell">Type</div>
+					<div class="cell" style="width:25%;">Row Label</div>
+					<div class="cell" style="width:25%;">Type</div>
 				</div>
 				<!-- ko foreach: rows -->
 				<div class="nfRow">
 									
-					<input class="input setting-input cell" data-bind="value:name" type="text">
-					<select class="input setting-input cell" data-bind="options:$root.rowTypes, value: type"></select>
+					<input class="input setting-input cell" style="width:25%;" data-bind="value:name" type="text">
+					<select class="input setting-input cell" style="width:25%;" data-bind="options:$root.rowTypes, value: type"></select>
 				</div>
 				<!-- /ko -->
 		  </li>
