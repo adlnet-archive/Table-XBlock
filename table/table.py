@@ -61,7 +61,7 @@ class TableXBlock(XBlock):
 		js = self.resource_string("static/js/src/table.js")
 		tab = self.tableStructure
 		
-		frag.add_javascript(js.replace('{{replaceMe}}', json.dumps(tab)))
+		frag.add_javascript(js.replace('{{tableStructure}}', json.dumps(tab)))
 		frag.initialize_js('TableXBlock')
 		return frag
 		
@@ -83,7 +83,7 @@ class TableXBlock(XBlock):
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
 
-		#self.tableStructure = data
+		self.tableStructure = data
 		return self.tableStructure
 
 	# TO-DO: change this to create the scenarios you'd like to see in the
