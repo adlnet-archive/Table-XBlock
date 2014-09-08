@@ -22,8 +22,8 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 				
 				<!-- ko if: $data.type == "text" -->
-					<span class="editable" data-bind="text: $parent.value() ? $parent.value() : placeholder, visible: !$parent.isEditing(), click: function(){$root.editLabelClick($parent)}"></span>
-					<input type="text" data-bind="value: $parent.value, attr: {placeholder: placeholder}, visible: $parent.isEditing, event: {keyup: function(o, e){$root.editFieldKeypress($parent, e)}}" />
+					<span class="editable" data-bind="text: $parent.values()[$index()].v() ? $parent.values()[$index()].v() : placeholder, visible: !$parent.values()[$index()].isEditing(), click: function(){$root.editLabelClick($parent.values()[$index()])}"></span>
+					<input type="text" data-bind="value: $parent.values()[$index()].v, attr: {placeholder: placeholder}, visible: $parent.values()[$index()].isEditing, hasFocus: $parent.values()[$index()].isEditing, event: {keyup: function(o, e){$root.editFieldKeypress($parent, e)}}" />
 				<!-- /ko -->
 				
 				<!-- ko if: $data.type && $data.type.match(/checkbox/gi) -->
