@@ -1,14 +1,16 @@
 <div class="table_block">
 	<div id="table_container">
 		<div class="row header bottom">
-			<!-- ko foreach: columns -->
+			<!-- ko foreach: $root.visibleColumns() -->
 				<div class="cell">
 					<span type="text" data-bind="text: name"></span>
 				</div>
 			<!-- /ko -->
-			<div class="cell">
-				<input type="text" placeholder="Enter new column name">
-			</div>
+			<!-- ko if: allowNewColumns -->
+				<div class="cell">
+					<input type="text" placeholder="Enter new column name">
+				</div>
+			<!-- /ko -->
 		</div>
 		<!-- ko foreach: rows -->
 			<div class="row bottom">
@@ -18,7 +20,7 @@
 					</div>
 					<!-- ko if: $data.children && children().length > 0 -->
 						<!-- ko foreach: $data.children -->
-							<div class="row" data-bind="foreach: $root.columns">
+							<div class="row" data-bind="foreach: $root.visibleColumns()">
 								{self._cell}
 							</div>
 						<!-- /ko -->
@@ -31,7 +33,7 @@
 					</div>
 				<!-- /ko -->
 				<!-- ko if: !type().match(/parent/gi) -->
-					<div class="row" data-bind="foreach: $root.columns">
+					<div class="row" data-bind="foreach: $root.visibleColumns()">
 						{self._cell}
 					</div>
 				<!-- /ko -->
@@ -39,7 +41,7 @@
 		<!-- /ko -->
 	</div>
 	<div id="table_modal" data-bind="with: tempRow, visible:tempRow()" style="display:none;">
-		<div class="modal_container" data-bind="foreach: $root.columns">
+		<div class="modal_container" data-bind="foreach: $root.visibleColumns()">
 			<div class="row bottom">
 				<div class="cell header">
 					<span type="text" data-bind="text: name"></span>

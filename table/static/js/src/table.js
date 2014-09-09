@@ -1,5 +1,7 @@
 /* Javascript for TableXBlock. */
 window.bindObj, window.studioBindObj;
+var visibleColumnsList = {{showColumns}};
+
 function TableXBlock(runtime, element) {
     if(window.bindObj){
 		console.log("Student view already generated");
@@ -12,7 +14,19 @@ function TableXBlock(runtime, element) {
 		rows: ko.observableArray(),
 		columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number"],
 		rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
-		allowNewColumns: true,
+		visibleColumns: function(){
+			var tempArr = [];
+			
+			var columns = window.bindObj && window.bindObj.columns ? window.bindObj.columns() : [];
+			for(var i = 0; i < columns.length; i++){
+				if(visibleColumnsList.indexOf(columns[i].name) > -1){
+					tempArr.push(columns[i]);
+				}
+			}
+			
+			return tempArr;
+		},
+		allowNewColumns: false,
 		allowNewRows: true,
 		tempRow: ko.observable(false),
 		addTempRow: function(obj){
@@ -64,13 +78,16 @@ function TableXBlock(runtime, element) {
 	
 	bindObj.columns.subscribe(function(newVal){
 		var perc = bindObj.allowNewColumns ? 100 / (bindObj.columns().length + 1) : 100 / bindObj.columns().length;
-		$('.table_block .cell').not('#table_modal .cell').css('width', perc + '%');
-		
-		console.log(perc);
 		for(var i = 0; i < bindObj.rows().length; i++){
 			bindObj.rows()[i].values.push({v: ko.observable(""), isEditing: ko.observable(false)});
 		}
-	});	
+		
+		//The cell has not been added yet, set timeout
+		window.setTimeout(function(){
+			$('.table_block .cell').not('#table_modal .cell').css('width', perc + '%');
+		}, 500);
+		console.log(perc);
+	});
 	
 	bindObj.rows.subscribe(initRowValues);
 	
@@ -104,7 +121,7 @@ function StudioTableXBlock(runtime, element) {
         runtime.notify('cancel', {});
         updateBindObj();
 
-        var outObj = JSON.stringify(ko.mapping.toJS(window.studioBindObj));
+        var outObj = JSON.stringify({tableStructure:ko.mapping.toJS(window.studioBindObj), showColumns: visibleColumnsList});
 
 		$.ajax({
 		  type: "POST",
@@ -160,6 +177,7 @@ function initBindObj(){
 		window.studioBindObj = ko.mapping.fromJS({{tableStructure}});
 		window.studioBindObj.addColumn = addColumn;
 		window.studioBindObj.addRow = addRow;
+		window.studioBindObj.columnVisible = columnVisible;
 	}
 	else{
 		window.studioBindObj = {
@@ -167,14 +185,36 @@ function initBindObj(){
 			rows: ko.observableArray(),
 			columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number"],
 			rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
-			allowNewColumns: true,
+			allowNewColumns: false,
 			allowNewRows: true,
 			addColumn: addColumn,
 			addRow: addRow,
+			columnVisible: columnVisible
 		};
 	}
 	
 	updateBindObj();
+	
+	function columnVisible (column){
+		return ko.computed({
+			read: function(x){
+				var col = column;
+				return visibleColumnsList.indexOf(col.name()) > -1;
+			},
+			write: function(val){
+				var col = column;
+				var index = visibleColumnsList.indexOf(col.name());
+				
+				if(val && index < 0){
+					visibleColumnsList.push(col.name());
+				}
+				else if(!val && index > -1){
+					debugger;
+					visibleColumnsList.splice(index, 1);
+				}
+			}
+		});
+	};
 	
 	function addColumn(){
 		window.studioBindObj.columns.push({name: ko.observable("[Column name]"), placeholder: ko.observable(""), type: ko.observable("text")});

@@ -4,7 +4,7 @@ import pkg_resources
 import json
 
 from xblock.core import XBlock
-from xblock.fields import Scope, Integer, String, Dict
+from xblock.fields import Scope, Integer, String, Dict, List, UserScope, BlockScope
 from xblock.fragment import Fragment
 
 
@@ -36,7 +36,9 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 			</div>'''	
 			
-	tableStructure = Dict(default={}, scope=Scope.settings, help="Options that will determine the table structure presented to users")
+	tableStructure = Dict(default={}, scope=Scope.content, help="Options that will determine the table structure presented to users")
+	showColumns = List(default=[], scope=Scope.settings, help="The list of columns to show for this instance of Table")
+	userRows = Dict(default={}, scope=Scope.preferences, help="User row preferences")
 	display_name = String(display_name="Display Name", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
 
 	# TO-DO: delete count, and define your own fields.
@@ -64,8 +66,12 @@ class TableXBlock(XBlock):
 		
 		js = self.resource_string("static/js/src/table.js")
 		tab = self.tableStructure
+		showColumns = self.showColumns
 		
-		frag.add_javascript(js.replace('{{tableStructure}}', json.dumps(tab)))
+		jsStr = js.replace('{{tableStructure}}', json.dumps(tab))
+		jsStr = jsStr.replace('{{showColumns}}', json.dumps(showColumns))
+		
+		frag.add_javascript(jsStr)
 		frag.initialize_js('TableXBlock')
 		return frag
 		
@@ -87,8 +93,9 @@ class TableXBlock(XBlock):
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
 
-		self.tableStructure = data
-		return self.tableStructure
+		self.tableStructure = data['tableStructure']
+		self.showColumns = data['showColumns']
+		return data
 
 	# TO-DO: change this to create the scenarios you'd like to see in the
 	# workbench while developing your XBlock.
