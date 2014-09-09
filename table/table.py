@@ -16,7 +16,7 @@ class TableXBlock(XBlock):
 	# Fields are defined on the class.  You can access them in your code as
 	# self.<fieldname>.
 	
-	_cell = '''<div class="cell">
+	_cell = '''<div class="cell" data-bind="style: { width: $root.getCellWidth() }">
 				<!-- ko if: $data.type == "label" -->
 					<span data-bind="text: name() + ' col'"></span>
 				<!-- /ko -->
