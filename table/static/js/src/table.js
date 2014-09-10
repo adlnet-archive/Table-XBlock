@@ -1,6 +1,6 @@
 (function(){
 	/* Javascript for TableXBlock. */
-	var bindObj, studioBindObj, visibleColumnsList = {{showColumns}}, xBlockCalled = false;
+	var bindObj, studioBindObj, visibleColumnsList = {{showColumns}}, xBlockCalled = false, userRows = {{userRows}}.rows || [], userRowsHandler;
 
 	window.TableXBlock = function(runtime, element) {
 		/*if(xBlockCalled){
@@ -9,7 +9,9 @@
 		}*/
 		
 		xBlockCalled = true;
+		userRowsHandler = runtime.handlerUrl(element, 'save_student_rows');
 		var currentRow;		
+		
 		bindObj = {
 			columns: ko.observableArray(),
 			rows: ko.observableArray(),
@@ -34,7 +36,6 @@
 				var newRow = {type: ko.observable("normal"), value: ko.observable(""), values: ko.observableArray()};
 				initRowValues(true, newRow);
 				bindObj.tempRow(newRow);
-				
 				currentRow = obj;
 			},
 			editLabelClick: function(obj){
@@ -48,6 +49,7 @@
 			},
 			pushRow: function(){
 				currentRow.children.push(bindObj.tempRow());
+				saveUserRows(bindObj.rows);
 				bindObj.cancelModal();
 			},
 			cancelModal: function(){
@@ -97,6 +99,7 @@
 		bindObj.rows.subscribe(initRowValues);
 		
 		function initRowValues(useObj, obj){
+			//Every time a row is added, initialize its values array...
 			obj = useObj === true ? obj : bindObj.rows()[bindObj.rows().length - 1];
 			if(bindObj.rows().length - 1 >= 0 && obj && !Array.isArray(obj.type().match(/parent/i))){
 				for(var i = 0; i < bindObj.columns().length; i++){
@@ -129,7 +132,7 @@
 			  url: handlerUrl,
 			  data: outObj,
 			  complete: function(res){
-				  console.log("This is the response: ", res);
+				  console.log("This is the response: ", res.responseText);
 			  },
 			  contentType: "application/json; charset=UTF-8",
 			});
@@ -142,30 +145,79 @@
 			runtime.notify('cancel', {});
 		}
 	}
+	
+	function saveUserRows(arr){
+		if(userRowsHandler){
+			var outObj;
+			if(arr){
+				outObj = {rows: ko.toJS(arr)};
+				userRows = outObj.rows;
+				
+				debugger;
+				outObj = JSON.stringify(outObj);
+			}
+			else{
+				outObj = JSON.stringify({rows: userRows})
+			}
+
+			$.ajax({
+				  type: "POST",
+				  url: userRowsHandler,
+				  data: outObj,
+				  complete: function(res){
+					  console.log("This is the response for student rows: ", res.responseText);
+				  },
+				  contentType: "application/json; charset=UTF-8",
+			});
+		}
+	}
+	
+	function cleanUserRows(baseRows){
+		
+		if(userRows.length < baseRows.length){
+			userRows = baseRows;
+			saveUserRows();
+			return baseRows;
+		}
+		
+		for(var i = 0, g = 0; i < baseRows.length; i++){
+			while(userRows[g] && userRows[g].name.indexOf(baseRows[i].name) > -1){
+				g++;
+			}
+		}
+		
+		
+		//UPDATE USER ROWS HERE
+		
+		return userRows || baseRows;
+	}
 
 	function updateBindObj(){
 		
-		var rowsArr = ko.mapping.fromJS(ko.toJS(studioBindObj.rows))();
+		var outRows = cleanUserRows(ko.toJS(studioBindObj.rows));
+
+		var rowsArr = ko.mapping.fromJS(outRows)();
 		var columnsArr = ko.toJS(studioBindObj.columns);
 		
 		for(var i = 0; i < rowsArr.length; i++){
-			
 			rowsArr[i].value = rowsArr[i].value ? rowsArr[i].value : ko.observable(rowsArr[i].name());
 			rowsArr[i].values = rowsArr[i].values ? rowsArr[i].values : ko.observableArray("");
+			rowsArr[i].isEditing = ko.observable(false);
 			
-			if(Array.isArray(rowsArr[i].type().match(/parent/i))){
+			//If is a parent and has no current children
+			if(Array.isArray(rowsArr[i].type().match(/parent/i)) && !rowsArr[i].children){
 				rowsArr[i].children = ko.observableArray();
 				
 				if(rowsArr[i].type() === "parentAppendable"){
 					rowsArr[i].value(rowsArr[i].value() + " 1");
 				}
 			}
-			else{
-				rowsArr[i].isEditing = ko.observable(false);
-			}
 			
-			for(var g = 0; g  < columnsArr.length; g++){
-				rowsArr[i].values.push({v: ko.observable(""), isEditing: ko.observable(false)});
+			//If not a parent and has no current values... 
+			else if(!rowsArr[i].children){
+				for(var g = 0; g  < columnsArr.length; g++){
+					rowsArr[i].values.push({v: ko.observable(""), isEditing: ko.observable(false)});
+				}
 			}
 		}
 		
@@ -193,7 +245,7 @@
 				columnVisible: columnVisible
 			};
 		}
-		
+
 		updateBindObj();
 		
 		function columnVisible (column){

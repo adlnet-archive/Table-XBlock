@@ -37,7 +37,7 @@ class TableXBlock(XBlock):
 			</div>'''	
 			
 	tableStructure = Dict(default={}, scope=Scope.content, help="Options that will determine the table structure presented to users")
-	showColumns = List(default=[], scope=Scope.settings, help="The list of columns to show for this instance of Table")
+	showColumns = List(default=[], scope=Scope.content, help="The list of columns to show for this instance of Table")
 	userRows = Dict(default={}, scope=Scope.preferences, help="User row preferences")
 	display_name = String(display_name="Display Name", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
 
@@ -67,9 +67,11 @@ class TableXBlock(XBlock):
 		js = self.resource_string("static/js/src/table.js")
 		tab = self.tableStructure
 		showColumns = self.showColumns
+		userRows = self.userRows
 		
 		jsStr = js.replace('{{tableStructure}}', json.dumps(tab))
 		jsStr = jsStr.replace('{{showColumns}}', json.dumps(showColumns))
+		jsStr = jsStr.replace('{{userRows}}', json.dumps(userRows))
 		
 		frag.add_javascript(jsStr)
 		frag.initialize_js('TableXBlock')
@@ -95,6 +97,17 @@ class TableXBlock(XBlock):
 
 		self.tableStructure = data['tableStructure']
 		self.showColumns = data['showColumns']
+		return data
+		
+	@XBlock.json_handler
+	def save_student_rows(self, data, suffix=''):
+		"""
+		An example handler, which increments the data.
+		"""
+		# Just to show data coming in...
+		#assert data['hello'] == 'world'
+
+		self.userRows = data
 		return data
 
 	# TO-DO: change this to create the scenarios you'd like to see in the
