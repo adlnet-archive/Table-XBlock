@@ -31,8 +31,8 @@ class TableXBlock(XBlock):
 					<textarea data-bind="value: $parent.values()[$index()].v, attr: {placeholder: placeholder}, visible: $parent.values()[$index()].isEditing, hasFocus: $parent.values()[$index()].isEditing, event: {keyup: function(o, e){$root.editFieldKeypress($parent, e)}}" />
 				<!-- /ko -->
 				
-				<!-- ko if: $data.type && $data.type.match(/checkbox/gi) -->
-					<input type="checkbox" />
+				<!-- ko if: $data.type == "checkbox" -->
+					<input type="checkbox" data-bind="checked: $parent.values()[$index()].v" />
 				<!-- /ko -->
 			</div>'''	
 			

@@ -114,6 +114,7 @@
 			$(this).hide();
 		});
 		
+		debugger;
 		ko.applyBindings(bindObj, (element instanceof $ ? element[0] : element));
 	}
 	/* Javascript for studio view TableXBlock. */
@@ -152,8 +153,6 @@
 			if(arr){
 				outObj = {rows: ko.toJS(arr)};
 				userRows = outObj.rows;
-				
-				debugger;
 				outObj = JSON.stringify(outObj);
 			}
 			else{
@@ -175,8 +174,6 @@
 	function cleanUserRows(baseRows){
 		
 		if(userRows.length < baseRows.length){
-			userRows = baseRows;
-			saveUserRows();
 			return baseRows;
 		}
 		
@@ -205,21 +202,33 @@
 			rowsArr[i].isEditing = ko.observable(false);
 			
 			//If is a parent and has no current children
-			if(Array.isArray(rowsArr[i].type().match(/parent/i)) && !rowsArr[i].children){
-				rowsArr[i].children = ko.observableArray();
+			if(Array.isArray(rowsArr[i].type().match(/parent/i))){
+				if(!rowsArr[i].children){
+					rowsArr[i].children = ko.observableArray();
+					
+					if(rowsArr[i].type() === "parentAppendable"){
+						rowsArr[i].value(rowsArr[i].value() + " 1");
+					}
+				}
 				
-				if(rowsArr[i].type() === "parentAppendable"){
-					rowsArr[i].value(rowsArr[i].value() + " 1");
+				for(var g = 0; g  < rowsArr[i].children().length; g++){
+					var childValuesArr = rowsArr[i].children()[g].values;
+					
+					for(var j = childValuesArr.length; j < columnsArr.length; j++){
+						childValuesArr.push({v: ko.observable(""), isEditing: ko.observable(false)});
+					}
 				}
 			}
 			
 			//If not a parent and has no current values... 
 			else if(!rowsArr[i].children){
-				for(var g = 0; g  < columnsArr.length; g++){
+				for(var g = rowsArr[i].values.length; g  < columnsArr.length; g++){
 					rowsArr[i].values.push({v: ko.observable(""), isEditing: ko.observable(false)});
 				}
 			}
 		}
+		
+		saveUserRows(rowsArr);
 		
 		bindObj.columns(columnsArr);
 		bindObj.rows(rowsArr);
