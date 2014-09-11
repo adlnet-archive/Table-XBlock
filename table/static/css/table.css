@@ -77,9 +77,15 @@ button{
 	cursor: text;
 }
 
+.table_block .saveButtonContainer{
+	width:25%;
+	margin:0 auto;
+}
+
 .table_block .saveButton{
-	margin: 0 auto;
 	display: block;
+	float:left;
+	margin-left: 10px;
 }
 
 #table_modal{

@@ -32,7 +32,6 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 				
 				<!-- ko if: $data.type == "checkbox" -->
-					<span data-bind="text:$data.name"></span><br/>
 					<input type="checkbox" data-bind="checked: $parent.values()[$index()].v" />
 				<!-- /ko -->
 			</div>'''	

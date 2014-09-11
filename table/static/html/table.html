@@ -3,7 +3,7 @@
 		<div class="row header bottom">
 			<!-- ko foreach: $root.visibleColumns() -->
 				<div class="cell">
-					<span type="text" data-bind="text: name"></span>
+					<h3 type="text" data-bind="text: name"></h3>
 				</div>
 			<!-- /ko -->
 			<!-- ko if: allowNewColumns -->
@@ -39,7 +39,10 @@
 				<!-- /ko -->
 			</div>
 		<!-- /ko -->
-		<button data-bind="click:saveUserData" class="saveButton">Save</button>
+		<div class="saveButtonContainer">
+			<button data-bind="click:saveUserData" class="saveButton">Save</button>
+			<button data-bind="click:clearUserData" class="saveButton">Clear All</button>
+		</div>
 	</div>
 	<div id="table_modal" data-bind="with: tempRow, visible:tempRow()" style="display:none;">
 		<div class="modal_container" data-bind="foreach: $root.visibleColumns()">

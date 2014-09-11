@@ -10,6 +10,7 @@
 		
 		xBlockCalled = true;
 		userRowsHandler = runtime.handlerUrl(element, 'save_student_rows');
+
 		var currentRow;		
 		
 		bindObj = {
@@ -84,6 +85,26 @@
 			saveUserData: function(){
 				saveUserRows(bindObj.rows);
 			},
+			clearUserData: function(){
+				var tempRows = bindObj.rows();
+				for(var i = tempRows.length - 1; i >= 0; i--){
+					var numArr = tempRows[i].value().match(/[0-9]+/g);
+					if(Array.isArray(numArr) && (+numArr[numArr.length-1]) > 1){
+						tempRows.splice(i, 1);
+					}
+					else if(tempRows[i].children){
+						tempRows[i].children.removeAll();
+					}
+					
+					if(tempRows[i].values){
+						tempRows[i].values().length = 0;
+						initRowValues(true, tempRows[i]);
+					}
+				}
+				
+				bindObj.rows.valueHasMutated();
+				saveUserRows(bindObj.rows);
+			}
 		}
 		
 		bindObj.columns.subscribe(function(newVal){
@@ -105,7 +126,7 @@
 			//Every time a row is added, initialize its values array...
 			obj = useObj === true ? obj : bindObj.rows()[bindObj.rows().length - 1];
 			if(bindObj.rows().length - 1 >= 0 && obj && !Array.isArray(obj.type().match(/parent/i))){
-				for(var i = 0; i < bindObj.columns().length; i++){
+				for(var i = obj.values().length; i < bindObj.columns().length; i++){
 					obj.values.push({v: ko.observable(""), isEditing: ko.observable(false)});
 				}
 			}	
@@ -117,7 +138,6 @@
 			$(this).hide();
 		});
 		
-		debugger;
 		ko.applyBindings(bindObj, (element instanceof $ ? element[0] : element));
 	}
 	/* Javascript for studio view TableXBlock. */
@@ -191,7 +211,8 @@
 		
 		//UPDATE USER ROWS HERE
 		
-		return userRows || baseRows;
+		//return userRows || baseRows;
+		return baseRows;
 	}
 
 	function updateBindObj(){
@@ -241,6 +262,7 @@
 
 	function initBindObj(){
 		var tempTableStructure = {{tableStructure}};
+
 		if(tempTableStructure && tempTableStructure.columns){
 			studioBindObj = ko.mapping.fromJS(tempTableStructure);
 		}
