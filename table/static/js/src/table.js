@@ -80,7 +80,10 @@
 			getCellWidth: function(){
 				var perc = bindObj.allowNewColumns ? 100 / (bindObj.columns().length + 1) : 100 / bindObj.columns().length;
 				return perc + '%';
-			}
+			},
+			saveUserData: function(){
+				saveUserRows(bindObj.rows);
+			},
 		}
 		
 		bindObj.columns.subscribe(function(newVal){
@@ -125,8 +128,10 @@
 			e.stopPropagation();
 			runtime.notify('cancel', {});
 			updateBindObj();
-
-			var outObj = JSON.stringify({tableStructure:ko.mapping.toJS(studioBindObj), showColumns: visibleColumnsList});
+			
+			var finalTableStructure = ko.mapping.toJS(studioBindObj);
+			localStorage.tableStructure = JSON.stringify(finalTableStructure);
+			var outObj = JSON.stringify({tableStructure: finalTableStructure, showColumns: visibleColumnsList});
 
 			$.ajax({
 			  type: "POST",
@@ -235,11 +240,12 @@
 	}
 
 	function initBindObj(){
-		if({{tableStructure}} && {{tableStructure}}.columns){
-			studioBindObj = ko.mapping.fromJS({{tableStructure}});
-			studioBindObj.addColumn = addColumn;
-			studioBindObj.addRow = addRow;
-			studioBindObj.columnVisible = columnVisible;
+		var tempTableStructure = {{tableStructure}};
+		if(tempTableStructure && tempTableStructure.columns){
+			studioBindObj = ko.mapping.fromJS(tempTableStructure);
+		}
+		else if(localStorage.tableStructure){
+			studioBindObj = ko.mapping.fromJS(JSON.parse(localStorage.tableStructure));
 		}
 		else{
 			studioBindObj = {
@@ -249,11 +255,12 @@
 				rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 				allowNewColumns: false,
 				allowNewRows: true,
-				addColumn: addColumn,
-				addRow: addRow,
-				columnVisible: columnVisible
 			};
 		}
+		
+		studioBindObj.addColumn = addColumn;
+		studioBindObj.addRow = addRow;
+		studioBindObj.columnVisible = columnVisible;
 
 		updateBindObj();
 		

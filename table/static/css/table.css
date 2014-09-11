@@ -69,11 +69,17 @@ button{
 .modal_container{
 	padding: 20px;
 	overflow: auto;
+	height: 380px;
 }
 
 .table_block .editable{
 	border-bottom: 1px dashed #3B80C3;
 	cursor: text;
+}
+
+.table_block .saveButton{
+	margin: 0 auto;
+	display: block;
 }
 
 #table_modal{
