@@ -107,24 +107,22 @@
 					};
 					
 					if(studioBindObj.xAPIResultKey()){
-						var cols = bindObj.columns(), i = 0, key = "";
+						var cols = bindObj.columns(), i = 0, key = "null_key_value";
 						
 						for(i = 0; i < cols.length; i++){
 							if(cols[i].name === studioBindObj.xAPIResultKey()){
-								key = row.values()[i].v() ? row.values()[i].v() : "null_key_value";
+								key = row.values()[i].v() ? row.values()[i].v() : key;
 								break;
 							}
 							
 						}
-						if(key){
-							var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
-							for(var g = 0; g < rowValues.length; g++){
-								if(g != i){
-									ext[cols[g].name] = rowValues[g].v();
-								}
+						
+						var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
+						for(var g = 0; g < rowValues.length; g++){
+							if(g != i){
+								ext[cols[g].name] = rowValues[g].v();
 							}
 						}
-
 					}
 					
 					console.log(JSON.stringify(stmt, null, 2));
@@ -330,14 +328,18 @@
 		studioBindObj.addRow = addRow;
 		studioBindObj.columnVisible = columnVisible;
 		studioBindObj.clearTableStructure = clearTableStructure;
-		studioBindObj.setXAPIResultKey = setXAPIResultKey;
+		studioBindObj.setXAPIResultKey =  setXAPIResultKey;
 		
 		updateBindObj();
 		
 		function setXAPIResultKey(obj){
-			console.log(obj);
-			studioBindObj.xAPIResultKey(obj.name());
-			
+			var o = obj;
+			if(o.name() != studioBindObj.xAPIResultKey()){
+				studioBindObj.xAPIResultKey(o.name());
+			}
+			else{
+				studioBindObj.xAPIResultKey("");
+			}
 			return true;
 		}
 		function clearTableStructure(){
