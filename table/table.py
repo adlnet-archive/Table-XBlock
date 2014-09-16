@@ -34,6 +34,10 @@ class TableXBlock(XBlock):
 				<!-- ko if: $data.type == "checkbox" -->
 					<input type="checkbox" data-bind="checked: $parent.values()[$index()].v" />
 				<!-- /ko -->
+				
+				<!-- ko if: $data.type == "button" -->
+					<button data-bind="text: placeholder, click: $root.handleButtonClick($parent, $index())"></button>
+				<!-- /ko -->
 			</div>'''	
 			
 	tableStructure = Dict(default={}, scope=Scope.content, help="Options that will determine the table structure presented to users")
@@ -61,6 +65,7 @@ class TableXBlock(XBlock):
 		html = self.resource_string("static/html/table.html")
 		frag = Fragment(html.format(self=self))
 		frag.add_css(self.resource_string("static/css/table.css"))
+		frag.add_javascript(self.resource_string("static/js/lib/xapiwrapper.min.js"))
 		frag.add_javascript(self.resource_string("static/js/lib/knockout-3.1.0.js"))
 		frag.add_javascript(self.resource_string("static/js/lib/knockout.mapping-latest.debug.js"))
 		
@@ -72,6 +77,7 @@ class TableXBlock(XBlock):
 		jsStr = js.replace('{{tableStructure}}', json.dumps(tab))
 		jsStr = jsStr.replace('{{showColumns}}', json.dumps(showColumns))
 		jsStr = jsStr.replace('{{userRows}}', json.dumps(userRows))
+		jsStr = jsStr.replace('{{user_id}}', str(vars(self.runtime)))
 		
 		frag.add_javascript(jsStr)
 		frag.initialize_js('TableXBlock')

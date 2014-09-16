@@ -14,23 +14,31 @@
 					<span class="tip setting-help">The title of the chart that is displayed to the user</span>
 				</div>
 				<div class="nfRow" data-bind="if:columns().length > 0">
-					<div class="cell" style="width:20%;">Column Label (Unique)</div>
-					<div class="cell" style="width:20%;">Placeholder Text</div>
-					<div class="cell" style="width:20%;">Type</div>
-					<div class="cell" style="width:10%;">Visible</div>
-					<div class="cell" style="width:10%;">xAPI Enabled</div>
+					<div class="cell" style="width:15%;">Column Label (Unique)</div>
+					<div class="cell" style="width:15%;">Placeholder Text</div>
+					<div class="cell" style="width:15%;">Type</div>
+					<div class="cell" style="width:8%;">Visible</div>
+					<div class="cell" style="width:8%;">xAPI Trigger</div>
+					<div class="cell" style="width:8%;">Related Context</div>
+					<div class="cell" style="width:8%;">Result Key</div>
 				</div>
 				<!-- ko foreach: columns -->
 				<div class="nfRow">
 									
-					<input class="input setting-input cell" style="width:20%;" data-bind="value:name" type="text">
-					<input class="input setting-input cell" style="width:20%;" data-bind="value:$data.placeholder" type="text">
-					<select class="input setting-input cell" style="width:20%;" data-bind="options:$root.columnTypes, value: type"></select>
-					<div class="cell" style="height:45px;padding-top:10px;width:10%;">
-						<input class="input setting-input cell" style="width:20%;height:20px;" type="checkbox" data-bind="checked:$root.columnVisible($data)">
+					<input class="input setting-input cell" style="width:15%;" data-bind="value:name" type="text">
+					<input class="input setting-input cell" style="width:15%;" data-bind="value:$data.placeholder" type="text">
+					<select class="input setting-input cell" style="width:15%;" data-bind="options:$root.columnTypes, value: type"></select>
+					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
+						<input class="input setting-input cell" style="width:100%;height:20px;" type="checkbox" data-bind="checked:$root.columnVisible($data)">
 					</div>
-					<div class="cell" style="height:45px;padding-top:10px;width:10%;">
-						<input class="input setting-input cell" style="width:10%;height:20px;" type="checkbox">
+					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
+						<input class="input setting-input cell" style="width:100%;height:20px;" type="checkbox" data-bind="checked:$data.xAPI">
+					</div>
+					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
+						<input class="input setting-input cell" style="width:100%;height:20px;" type="checkbox" data-bind="checked:$data.context">
+					</div>
+					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
+						<input class="input setting-input cell" style="width:100%;height:20px;" type="radio" name="xAPIResultKey" data-bind="click:$root.setXAPIResultKey, attr: {{checked: $root.xAPIResultKey() == $data.name()}}">
 					</div>
 				</div>
 				<!-- /ko -->
@@ -57,12 +65,16 @@
 	  </ul>
       <div class="xblock-actions">
         <span class="xblock-editor-error-message"></span>
-        <ul>
+        <ul>			
             <li class="action-item">
-                <a href="#" class="save-button action-primary action">Save</a>
+                <a href="#" class="button cancel-button" data-bind="click: $root.clearTableStructure">Clear All</a>
             </li>
+
             <li class="action-item">
                 <a href="#" class="button cancel-button" data-bind="click: $root.cancel">Cancel</a>
+            </li>
+            <li class="action-item">
+                <a href="#" class="save-button action-primary action">Save</a>
             </li>
         </ul>
     </div>

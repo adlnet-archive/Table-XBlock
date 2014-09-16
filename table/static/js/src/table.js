@@ -1,7 +1,10 @@
 (function(){
 	/* Javascript for TableXBlock. */
-	var bindObj, studioBindObj, visibleColumnsList = {{showColumns}}, xBlockCalled = false, userRows = {{userRows}}.rows || [], userRowsHandler;
-
+	var bindObj, studioBindObj, visibleColumnsList = {{showColumns}}, xBlockCalled = false, userRows = {{userRows}}.rows || [], userRowsHandler, handlerUrl;
+	
+	/*
+	 * {{user_id}}
+	 */
 	window.TableXBlock = function(runtime, element) {
 		/*if(xBlockCalled){
 			console.log("Student view already generated");
@@ -85,6 +88,48 @@
 			saveUserData: function(){
 				saveUserRows(bindObj.rows);
 			},
+			handleButtonClick: function(row, index){
+				
+				return function(target){
+					console.log(row, index, target);
+					
+					var actor = new ADL.XAPIStatement.Agent({ name: "Unidentified User", homePage: window.location.origin});
+					var verb = new ADL.XAPIStatement.Verb(ADL.verbs.completed, "completed");
+					var obj =  new ADL.XAPIStatement.Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox', 'the Virtual World Sandbox');
+					
+					var stmt = new ADL.XAPIStatement(actor, verb, obj);
+					stmt.generateId();
+					stmt.result = {
+						extensions: {}
+					};
+					stmt.context = {
+						extensions: {}
+					};
+					
+					if(studioBindObj.xAPIResultKey()){
+						var cols = bindObj.columns(), i = 0, key = "";
+						
+						for(i = 0; i < cols.length; i++){
+							if(cols[i].name === studioBindObj.xAPIResultKey()){
+								key = row.values()[i].v() ? row.values()[i].v() : "null_key_value";
+								break;
+							}
+							
+						}
+						if(key){
+							var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
+							for(var g = 0; g < rowValues.length; g++){
+								if(g != i){
+									ext[cols[g].name] = rowValues[g].v();
+								}
+							}
+						}
+
+					}
+					
+					console.log(JSON.stringify(stmt, null, 2));
+				}
+			},
 			clearUserData: function(){
 				var tempRows = bindObj.rows();
 				for(var i = tempRows.length - 1; i >= 0; i--){
@@ -142,7 +187,7 @@
 	}
 	/* Javascript for studio view TableXBlock. */
 	window.StudioTableXBlock = function(runtime, element) {
-		var handlerUrl = runtime.handlerUrl(element, 'save_admin_settings');
+		handlerUrl = runtime.handlerUrl(element, 'save_admin_settings');
 
 		$(element).find('.save-button').bind('click', function(e) {
 			e.stopPropagation();
@@ -273,19 +318,48 @@
 			studioBindObj = {
 				columns: ko.observableArray(),
 				rows: ko.observableArray(),
-				columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number"],
+				columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number", "button", "onetimeButton"],
 				rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 				allowNewColumns: false,
 				allowNewRows: true,
+				xAPIResultKey: ko.observable("")
 			};
 		}
 		
 		studioBindObj.addColumn = addColumn;
 		studioBindObj.addRow = addRow;
 		studioBindObj.columnVisible = columnVisible;
-
+		studioBindObj.clearTableStructure = clearTableStructure;
+		studioBindObj.setXAPIResultKey = setXAPIResultKey;
+		
 		updateBindObj();
 		
+		function setXAPIResultKey(obj){
+			console.log(obj);
+			studioBindObj.xAPIResultKey(obj.name());
+			
+			return true;
+		}
+		function clearTableStructure(){
+			bindObj.rows.removeAll();
+			bindObj.columns.removeAll();
+			studioBindObj.columns.removeAll();
+			studioBindObj.rows.removeAll();
+			
+			bindObj.clearUserData();			
+			
+			localStorage.removeItem("tableStructure");
+			$.ajax({
+				  type: "POST",
+				  url: handlerUrl,
+				  data: JSON.stringify({tableStructure: {}, showColumns: []}),
+				  complete: function(res){
+					  console.log("This is the response: ", res.responseText);
+					  window.alert("All cleared!");
+				  },
+				  contentType: "application/json; charset=UTF-8",
+				});		
+		}
 		function columnVisible (column){
 			return ko.computed({
 				read: function(x){
@@ -304,10 +378,9 @@
 					}
 				}
 			});
-		};
-		
+		}
 		function addColumn(){
-			studioBindObj.columns.push({name: ko.observable("[Column name]"), placeholder: ko.observable(""), type: ko.observable("text")});
+			studioBindObj.columns.push({name: ko.observable("[Column name]"), placeholder: ko.observable(""), type: ko.observable("text"), xAPI: ko.observable(false), context: ko.observable(false)});
 		}
 		function addRow(){
 			studioBindObj.rows.push({name: ko.observable("[Row name]"), type: ko.observable("normal")});
