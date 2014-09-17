@@ -1,10 +1,7 @@
 (function(){
 	/* Javascript for TableXBlock. */
 	var bindObj, studioBindObj, visibleColumnsList = {{showColumns}}, xBlockCalled = false, userRows = {{userRows}}.rows || [], userRowsHandler, handlerUrl;
-	
-	/*
-	 * {{user_id}}
-	 */
+
 	window.TableXBlock = function(runtime, element) {
 		/*if(xBlockCalled){
 			console.log("Student view already generated");
@@ -13,6 +10,7 @@
 		
 		xBlockCalled = true;
 		userRowsHandler = runtime.handlerUrl(element, 'save_student_rows');
+		trackDataHandler = runtime.handlerUrl(element, 'track_data');
 
 		var currentRow;		
 		
@@ -92,12 +90,10 @@
 				
 				return function(target){
 					console.log(row, index, target);
-					
+										
 					var actor = new ADL.XAPIStatement.Agent({ name: "Unidentified User", homePage: window.location.origin});
-					var verb = new ADL.XAPIStatement.Verb(ADL.verbs.completed, "completed");
-					var obj =  new ADL.XAPIStatement.Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox', 'the Virtual World Sandbox');
-					
-					var stmt = new ADL.XAPIStatement(actor, verb, obj);
+					var verb = ADL.verbs.completed;
+					var stmt = new ADL.XAPIStatement(actor, verb);
 					stmt.generateId();
 					stmt.result = {
 						extensions: {}
@@ -106,17 +102,20 @@
 						extensions: {}
 					};
 					
-					if(studioBindObj.xAPIResultKey()){
+					if(studioBindObj.xAPIObject()){
 						var cols = bindObj.columns(), i = 0, key = "null_key_value";
 						
+						//Find the value of "result key"
 						for(i = 0; i < cols.length; i++){
-							if(cols[i].name === studioBindObj.xAPIResultKey()){
-								key = row.values()[i].v() ? row.values()[i].v() : key;
+							if(cols[i].name === studioBindObj.xAPIObject()){
+								var cellVal = row.values()[i].v();
+								stmt.object =  new ADL.XAPIStatement.Activity('http://adlnet.gov/xapi/' + cellVal.toLowerCase().replace(/ /g, '_'), cellVal);
+								key = cellVal ? 'http://adlnet.gov/xapi/extensions/' + cols[i].name.toLowerCase().replace(/ /g, '_') : key;
 								break;
 							}
-							
 						}
 						
+						//For each cell in this row, add its value to statement
 						var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
 						for(var g = 0; g < rowValues.length; g++){
 							if(g != i){
@@ -125,7 +124,18 @@
 						}
 					}
 					
+					var outObj = JSON.stringify(stmt);
 					console.log(JSON.stringify(stmt, null, 2));
+					
+					$.ajax({
+					  type: "POST",
+					  url: trackDataHandler,
+					  data: outObj,
+					  complete: function(res){
+						  console.log("This is the response for tracking data: ", res.responseText);
+					  },
+					  contentType: "application/json; charset=UTF-8",
+					});
 				}
 			},
 			clearUserData: function(){
@@ -194,7 +204,7 @@
 			
 			var finalTableStructure = ko.mapping.toJS(studioBindObj);
 			localStorage.tableStructure = JSON.stringify(finalTableStructure);
-			var outObj = JSON.stringify({tableStructure: finalTableStructure, showColumns: visibleColumnsList});
+			var outObj = JSON.stringify({tableStructure: finalTableStructure, showColumns: visibleColumnsList, displayName: finalTableStructure.displayName});
 
 			$.ajax({
 			  type: "POST",
@@ -305,7 +315,7 @@
 
 	function initBindObj(){
 		var tempTableStructure = {{tableStructure}};
-
+		
 		if(tempTableStructure && tempTableStructure.columns){
 			studioBindObj = ko.mapping.fromJS(tempTableStructure);
 		}
@@ -320,25 +330,27 @@
 				rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 				allowNewColumns: false,
 				allowNewRows: true,
-				xAPIResultKey: ko.observable("")
+				xAPIObject: ko.observable(""),
+				displayName: ko.observable("{{display_name}}")
 			};
 		}
+		
 		
 		studioBindObj.addColumn = addColumn;
 		studioBindObj.addRow = addRow;
 		studioBindObj.columnVisible = columnVisible;
 		studioBindObj.clearTableStructure = clearTableStructure;
-		studioBindObj.setXAPIResultKey =  setXAPIResultKey;
+		studioBindObj.setXAPIObject =  setXAPIObject;
 		
 		updateBindObj();
 		
-		function setXAPIResultKey(obj){
+		function setXAPIObject(obj){
 			var o = obj;
-			if(o.name() != studioBindObj.xAPIResultKey()){
-				studioBindObj.xAPIResultKey(o.name());
+			if(o.name() != studioBindObj.xAPIObject()){
+				studioBindObj.xAPIObject(o.name());
 			}
 			else{
-				studioBindObj.xAPIResultKey("");
+				studioBindObj.xAPIObject("");
 			}
 			return true;
 		}
@@ -354,7 +366,7 @@
 			$.ajax({
 				  type: "POST",
 				  url: handlerUrl,
-				  data: JSON.stringify({tableStructure: {}, showColumns: []}),
+				  data: JSON.stringify({tableStructure: {}, showColumns: [], displayName: "Table XBlock"}),
 				  complete: function(res){
 					  console.log("This is the response: ", res.responseText);
 					  window.alert("All cleared!");

@@ -72,6 +72,10 @@ button{
 	height: 380px;
 }
 
+.modal_container .cell{
+	width: 40% !important;
+}
+
 .table_block .editable{
 	border-bottom: 1px dashed #3B80C3;
 	cursor: text;

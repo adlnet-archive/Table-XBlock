@@ -43,7 +43,7 @@ class TableXBlock(XBlock):
 	tableStructure = Dict(default={}, scope=Scope.content, help="Options that will determine the table structure presented to users")
 	showColumns = List(default=[], scope=Scope.content, help="The list of columns to show for this instance of Table")
 	userRows = Dict(default={}, scope=Scope.preferences, help="User row preferences")
-	display_name = String(display_name="Display Name", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
+	display_name = String(display_name="Table XBlock", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
 
 	# TO-DO: delete count, and define your own fields.
 	count = Integer(
@@ -61,7 +61,7 @@ class TableXBlock(XBlock):
 		"""
 		The primary view of the TableXBlock, shown to students
 		when viewing courses.
-		"""
+		"""		
 		html = self.resource_string("static/html/table.html")
 		frag = Fragment(html.format(self=self))
 		frag.add_css(self.resource_string("static/css/table.css"))
@@ -77,7 +77,7 @@ class TableXBlock(XBlock):
 		jsStr = js.replace('{{tableStructure}}', json.dumps(tab))
 		jsStr = jsStr.replace('{{showColumns}}', json.dumps(showColumns))
 		jsStr = jsStr.replace('{{userRows}}', json.dumps(userRows))
-		jsStr = jsStr.replace('{{user_id}}', str(vars(self.runtime)))
+		jsStr = jsStr.replace('{{display_name}}', self.display_name)
 		
 		frag.add_javascript(jsStr)
 		frag.initialize_js('TableXBlock')
@@ -86,7 +86,7 @@ class TableXBlock(XBlock):
 	# TO-DO: change this view to display your data your own way.
 	def studio_view(self, context=None):
 		html = self.resource_string("static/html/table_edit.html")
-		frag = Fragment(html.format(self=self))
+		frag = Fragment(html)
 		
 		frag.initialize_js('StudioTableXBlock')
 		return frag
@@ -100,7 +100,8 @@ class TableXBlock(XBlock):
 		"""
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
-
+		
+		self.display_name = data['displayName']
 		self.tableStructure = data['tableStructure']
 		self.showColumns = data['showColumns']
 		return data
@@ -114,6 +115,16 @@ class TableXBlock(XBlock):
 		#assert data['hello'] == 'world'
 
 		self.userRows = data
+		return data
+		
+	@XBlock.json_handler
+	def track_data(self, data, suffix=''):
+		"""
+		An example handler, which increments the data.
+		"""
+		# Just to show data coming in...
+		#assert data['hello'] == 'world'
+		self.runtime.publish(self, 'prt_complete', data)
 		return data
 
 	# TO-DO: change this to create the scenarios you'd like to see in the
