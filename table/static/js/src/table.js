@@ -94,32 +94,64 @@
 					var actor = new ADL.XAPIStatement.Agent({ name: "Unidentified User", homePage: window.location.origin});
 					var verb = ADL.verbs.completed;
 					var stmt = new ADL.XAPIStatement(actor, verb);
-					stmt.generateId();
-					stmt.result = {
-						extensions: {}
-					};
-					stmt.context = {
-						extensions: {}
-					};
+					var contextKey = "actid:" + studioBindObj.displayName().toLowerCase().replace(/ /g, '_');
+					stmt.result = { extensions: {} };
+					stmt.context = { extensions: {} };
+					stmt.context.extensions[contextKey] = {};
 					
 					if(studioBindObj.xAPIObject()){
-						var cols = bindObj.columns(), i = 0, key = "null_key_value";
+						var cols = bindObj.columns(), i = 0, key = "";
 						
 						//Find the value of "result key"
 						for(i = 0; i < cols.length; i++){
 							if(cols[i].name === studioBindObj.xAPIObject()){
 								var cellVal = row.values()[i].v();
-								stmt.object =  new ADL.XAPIStatement.Activity('http://adlnet.gov/xapi/' + cellVal.toLowerCase().replace(/ /g, '_'), cellVal);
-								key = cellVal ? 'http://adlnet.gov/xapi/extensions/' + cols[i].name.toLowerCase().replace(/ /g, '_') : key;
+								if(cellVal){
+									stmt.object =  new ADL.XAPIStatement.Activity('http://adlnet.gov/xapi/' + cellVal.toLowerCase().replace(/ /g, '_'), cellVal);
+									key = 'http://adlnet.gov/xapi/extensions/' + cols[i].name.toLowerCase().replace(/ /g, '_');
+								}
 								break;
 							}
 						}
 						
-						//For each cell in this row, add its value to statement
+						if(!stmt.object){
+							console.error("xAPI statement can not be sent without a valid " + cols[i].name + " value");
+							return;
+						}
+						
+						//For each cell in this row, add its value to result extension
 						var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
 						for(var g = 0; g < rowValues.length; g++){
 							if(g != i){
 								ext[cols[g].name] = rowValues[g].v();
+							}
+						}
+						
+						//Find columns that should be added to context and find corresponding cells
+						var numRows = 0, trueCount = 0, allRows = ko.toJS(bindObj.rows);
+						for(var g = 0; g < cols.length; g++){
+							if(cols[g].context){
+								for(var j = 0; j < allRows.length; j++){
+									var currentRow = allRows[j];
+									if(!Array.isArray(currentRow.type.match(/parent/i))){
+										numRows++;
+										if(currentRow.values[g].v){
+											trueCount++;
+										}
+									}
+									else{
+										for(var h = 0; h < currentRow.children.length; h++){
+											var child = currentRow.children[h];
+											numRows++;
+											if(child.values[g].v){
+												trueCount++;
+											}
+										}
+									}
+								}
+								
+								stmt.context.extensions[contextKey][cols[g].name] =  {current: trueCount, total: numRows};
+								numRows = trueCount = 0;
 							}
 						}
 					}
