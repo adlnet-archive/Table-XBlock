@@ -1,6 +1,13 @@
 (function(){
 	/* Javascript for TableXBlock. */
-	var bindObj, studioBindObj, visibleColumnsList = {{showColumns}}, xBlockCalled = false, userRows = {{userRows}}.rows || [], userRowsHandler, handlerUrl;
+	var bindObj, studioBindObj, 
+	visibleColumnsList = {{showColumns}}, 
+	xBlockCalled = false, 
+	userObj = {{userRows}}, 
+	userRows = userObj.rows || [], 
+	timestamp = userObj.timestamp || 0,
+	structureTimestamp,
+	userRowsHandler, handlerUrl;
 
 	window.TableXBlock = function(runtime, element) {
 		/*if(xBlockCalled){
@@ -234,6 +241,8 @@
 			updateBindObj();
 			
 			var finalTableStructure = ko.mapping.toJS(studioBindObj);
+			finalTableStructure._timestamp = Date.now();
+			
 			localStorage.tableStructure = JSON.stringify(finalTableStructure);
 			var outObj = JSON.stringify({tableStructure: finalTableStructure, showColumns: visibleColumnsList, displayName: finalTableStructure.displayName});
 
@@ -260,9 +269,8 @@
 		if(userRowsHandler){
 			var outObj;
 			if(arr){
-				outObj = {rows: ko.toJS(arr)};
-				userRows = outObj.rows;
-				outObj = JSON.stringify(outObj);
+				userRows = arr = ko.toJS(arr);
+				outObj = JSON.stringify({rows: arr, timestamp: (arr.length == 0 ? Date.now() : timestamp)});
 			}
 			else{
 				outObj = JSON.stringify({rows: userRows})
@@ -281,25 +289,15 @@
 	}
 	
 	function cleanUserRows(baseRows){
-		
-		if(userRows.length < baseRows.length){
+		if(timestamp < structureTimestamp || userRows.length < baseRows.length){
+			saveUserRows([]);
 			return baseRows;
 		}
 		
-		for(var i = 0, g = 0; i < baseRows.length; i++){
-			while(userRows[g] && userRows[g].name.indexOf(baseRows[i].name) > -1){
-				g++;
-			}
-		}
-		
-		
-		//UPDATE USER ROWS HERE
-		
-		//return userRows || baseRows;
-		return baseRows;
+		else return userRows;
 	}
 	function sanitize_str(str){
-		return str.toLowerCase().replace(/[^0-9a-zA-Z ]/gi, '').replace(/ /gi, '_');
+		return str.toLowerCase().replace(/[^0-9a-zA-Z ]/gi, '').replace(/ /gi, '_'		);
 	}
 	function updateBindObj(){
 		
@@ -348,6 +346,7 @@
 
 	function initBindObj(){
 		var tempTableStructure = {{tableStructure}};
+		structureTimestamp = tempTableStructure._timestamp ? tempTableStructure._timestamp : 0;
 		
 		if(tempTableStructure && tempTableStructure.columns){
 			studioBindObj = ko.mapping.fromJS(tempTableStructure);
