@@ -90,11 +90,10 @@
 				
 				return function(target){
 					console.log(row, index, target);
-										
-					var actor = new ADL.XAPIStatement.Agent({ name: "Unidentified User", homePage: window.location.origin});
-					var verb = ADL.verbs.completed;
-					var stmt = new ADL.XAPIStatement(actor, verb);
+
+					var stmt = new ADL.XAPIStatement();
 					var contextKey = "actid:" + studioBindObj.displayName().toLowerCase().replace(/ /g, '_');
+					stmt.verb = ADL.verbs.completed;
 					stmt.result = { extensions: {} };
 					stmt.context = { extensions: {} };
 					stmt.context.extensions[contextKey] = {};
@@ -107,8 +106,8 @@
 							if(cols[i].name === studioBindObj.xAPIObject()){
 								var cellVal = row.values()[i].v();
 								if(cellVal){
-									stmt.object =  new ADL.XAPIStatement.Activity('http://adlnet.gov/xapi/' + cellVal.toLowerCase().replace(/ /g, '_'), cellVal);
-									key = 'http://adlnet.gov/xapi/extensions/' + cols[i].name.toLowerCase().replace(/ /g, '_');
+									stmt.object =  new ADL.XAPIStatement.Activity('http://adlnet.gov/xapi/' + sanitize_str(cellVal), cellVal);
+									key = 'http://adlnet.gov/xapi/extensions/' + sanitize_str(cols[i].name);
 								}
 								break;
 							}
@@ -123,7 +122,7 @@
 						var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
 						for(var g = 0; g < rowValues.length; g++){
 							if(g != i){
-								ext[cols[g].name] = rowValues[g].v();
+								ext[sanitize_str(cols[g].name)] = rowValues[g].v();
 							}
 						}
 						
@@ -150,7 +149,7 @@
 									}
 								}
 								
-								stmt.context.extensions[contextKey][cols[g].name] =  {current: trueCount, total: numRows};
+								stmt.context.extensions[contextKey][sanitize_str(cols[g].name)] =  {current: trueCount, total: numRows};
 								numRows = trueCount = 0;
 							}
 						}
@@ -299,7 +298,9 @@
 		//return userRows || baseRows;
 		return baseRows;
 	}
-
+	function sanitize_str(str){
+		return str.toLowerCase().replace(/[^0-9a-zA-Z ]/gi, '').replace(/ /gi, '_');
+	}
 	function updateBindObj(){
 		
 		var outRows = cleanUserRows(ko.toJS(studioBindObj.rows));
