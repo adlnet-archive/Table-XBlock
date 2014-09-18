@@ -4,6 +4,20 @@ button{
 	cursor: pointer;
 }
 
+h3{
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.table_block input[type='checkbox']{
+	width:20px;
+    height:20px;
+    background:white;
+    border-radius:5px;
+    border:2px solid #555;
+}
+
 .table_block{
 	overflow: hidden;
 }
@@ -19,6 +33,13 @@ button{
 	overflow: hidden;
 	min-height: 30px;
 	margin-top: 10px;
+	border: none;
+}
+
+.table_block .green{
+	background: rgb(199, 255, 185);
+	padding: 10px 0 10px 0;
+	margin-top: 0;
 }
 
 .table_block .nfRow .cell{
@@ -40,6 +61,9 @@ button{
 
 .table_block .header{
 	font-weight: bold;
+	background: #ddd;
+	padding: 10px;
+	padding-left: 0;
 }
 .table_block .bottom{
 	margin: 0 0 20px 0;

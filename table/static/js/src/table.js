@@ -93,6 +93,17 @@
 			saveUserData: function(){
 				saveUserRows(bindObj.rows);
 			},
+			addGreenToRow: function(row){
+				return ko.computed(function(){
+					var values = row.values();
+					for(var i = 0; i < values.length; i++){
+						if(values[i].v() && Array.isArray(bindObj.columns()[i].type.match(/button/gi))){
+							return {green: true};
+						}
+					}
+					return {green: false};					
+				});
+			},
 			handleButtonClick: function(row, index){
 				
 				return function(target){
@@ -171,6 +182,10 @@
 					  data: outObj,
 					  complete: function(res){
 						  console.log("This is the response for tracking data: ", res.responseText);
+						  saveUserRows(bindObj.rows);
+						  
+						  //This makes the row green
+						  row.values()[index].v(true);
 					  },
 					  contentType: "application/json; charset=UTF-8",
 					});
@@ -311,7 +326,7 @@
 			rowsArr[i].values = rowsArr[i].values ? rowsArr[i].values : ko.observableArray("");
 			rowsArr[i].isEditing = ko.observable(false);
 			
-			//If is a parent and has no current children
+			//If row is a parent
 			if(Array.isArray(rowsArr[i].type().match(/parent/i))){
 				if(!rowsArr[i].children){
 					rowsArr[i].children = ko.observableArray();
@@ -321,6 +336,7 @@
 					}
 				}
 				
+				//Ensure children have enough values
 				for(var g = 0; g  < rowsArr[i].children().length; g++){
 					var childValuesArr = rowsArr[i].children()[g].values;
 					
@@ -330,7 +346,7 @@
 				}
 			}
 			
-			//If not a parent and has no current values... 
+			//If not a parent and does not have enough current values... 
 			else if(!rowsArr[i].children){
 				for(var g = rowsArr[i].values.length; g  < columnsArr.length; g++){
 					rowsArr[i].values.push({v: ko.observable(""), isEditing: ko.observable(false)});

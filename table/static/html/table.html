@@ -20,7 +20,7 @@
 					</div>
 					<!-- ko if: $data.children && children().length > 0 -->
 						<!-- ko foreach: $data.children -->
-							<div class="row" data-bind="foreach: $root.visibleColumns()">
+							<div class="row" data-bind="foreach: $root.visibleColumns(), css: $root.addGreenToRow($data)">
 								{self._cell}
 							</div>
 						<!-- /ko -->
@@ -28,9 +28,11 @@
 					<div class="row">
 						<div class="cell"><button data-bind="click:$root.addTempRow">Add item</button></div>
 					</div>
-					<div class="table_add_parent" data-bind="if:$data.type() == 'parentAppendable'">
+					<!-- ko if:$data.type() == 'parentAppendable' -->
+					<div class="header row parent table_add_parent">
 						<button data-bind="text: 'Add ' + name(), click: $root.addAppendableRow"></button>
 					</div>
+					<!-- /ko -->
 				<!-- /ko -->
 				<!-- ko if: !type().match(/parent/gi) -->
 					<div class="row" data-bind="foreach: $root.visibleColumns()">
