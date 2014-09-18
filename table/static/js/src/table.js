@@ -24,8 +24,7 @@
 		bindObj = {
 			columns: ko.observableArray(),
 			rows: ko.observableArray(),
-			columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number"],
-			rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
+			allowNewColumns: false,
 			visibleColumns: function(){
 				var tempArr = [];
 				
@@ -38,8 +37,6 @@
 				
 				return tempArr;
 			},
-			allowNewColumns: false,
-			allowNewRows: true,
 			tempRow: ko.observable(false),
 			addTempRow: function(obj){
 				var newRow = {type: ko.observable("normal"), value: ko.observable(""), values: ko.observableArray()};
@@ -65,7 +62,6 @@
 				bindObj.tempRow(false);
 			},
 			addAppendableRow: function(obj){
-				
 				var currentArr = bindObj.rows();
 				var i = bindObj.rows.indexOf(obj);
 				var number = obj.value().match(/[0-9]+/);
@@ -97,7 +93,7 @@
 				return ko.computed(function(){
 					var values = row.values();
 					for(var i = 0; i < values.length; i++){
-						if(values[i].v() && Array.isArray(bindObj.columns()[i].type.match(/button/gi))){
+						if(values[i].v() && bindObj.columns()[i].type == "xAPI onetimeButton"){
 							return {green: true};
 						}
 					}
@@ -108,6 +104,11 @@
 				
 				return function(target){
 					console.log(row, index, target);
+					if(row.values()[index].v() && bindObj.columns()[index].type == "xAPI onetimeButton"){
+						console.error("This activity has already been completed: ", ko.toJS(row));
+						window.alert("This activity has already been completed");
+						return;
+					}
 
 					var stmt = new ADL.XAPIStatement();
 					var contextKey = "actid:" + studioBindObj.displayName().toLowerCase().replace(/ /g, '_');
@@ -133,13 +134,17 @@
 						
 						if(!stmt.object){
 							console.error("xAPI statement can not be sent without a valid " + cols[i].name + " value");
+							window.alert("xAPI statement can not be sent without a valid " + cols[i].name + " value");
 							return;
 						}
+						
+						//This makes the row green
+						row.values()[index].v(true);
 						
 						//For each cell in this row, add its value to result extension
 						var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
 						for(var g = 0; g < rowValues.length; g++){
-							if(g != i){
+							if(cols[g].xAPI){
 								ext[sanitize_str(cols[g].name)] = rowValues[g].v();
 							}
 						}
@@ -171,24 +176,25 @@
 								numRows = trueCount = 0;
 							}
 						}
+						
+						var outObj = JSON.stringify(stmt);
+						console.log(JSON.stringify(stmt, null, 2));
+					
+						$.ajax({
+						  type: "POST",
+						  url: trackDataHandler,
+						  data: outObj,
+						  complete: function(res){
+							  console.log("This is the response for tracking data: ", res.responseText);
+							  saveUserRows(bindObj.rows);
+						  },
+						  contentType: "application/json; charset=UTF-8",
+						});
 					}
-					
-					var outObj = JSON.stringify(stmt);
-					console.log(JSON.stringify(stmt, null, 2));
-					
-					$.ajax({
-					  type: "POST",
-					  url: trackDataHandler,
-					  data: outObj,
-					  complete: function(res){
-						  console.log("This is the response for tracking data: ", res.responseText);
-						  saveUserRows(bindObj.rows);
-						  
-						  //This makes the row green
-						  row.values()[index].v(true);
-					  },
-					  contentType: "application/json; charset=UTF-8",
-					});
+					else{
+						console.error("xAPI statement can not be sent without a valid object");
+						window.alert("xAPI statement can not be sent without a valid object");
+					}
 				}
 			},
 			clearUserData: function(){
@@ -374,7 +380,7 @@
 			studioBindObj = {
 				columns: ko.observableArray(),
 				rows: ko.observableArray(),
-				columnTypes: ["text", "textarea", "checkbox", "checkboxHighlight", "label", "number", "button", "onetimeButton"],
+				columnTypes: ["text", "textarea", "checkbox", "label", "number", "xAPI button", "xAPI onetimeButton"],
 				rowTypes: ["normal", "parent", "appendable", "parentAppendable"],
 				allowNewColumns: false,
 				allowNewRows: true,

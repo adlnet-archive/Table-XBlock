@@ -35,8 +35,8 @@ class TableXBlock(XBlock):
 					<input type="checkbox" data-bind="checked: $parent.values()[$index()].v" />
 				<!-- /ko -->
 				
-				<!-- ko if: $data.type == "button" -->
-					<button data-bind="text: placeholder, click: $root.handleButtonClick($parent, $index())"></button>
+				<!-- ko if: $data.type && $data.type.match(/button/gi) -->
+					<button data-bind="text: placeholder, click: $root.handleButtonClick($parent, $index()), disable: $data.type == 'xAPI onetimeButton' && $parent.values()[$index()].v()"></button>
 				<!-- /ko -->
 			</div>'''	
 			

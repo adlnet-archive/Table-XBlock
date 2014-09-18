@@ -18,9 +18,9 @@
 					<div class="cell" style="width:15%;">Placeholder Text</div>
 					<div class="cell" style="width:15%;">Type</div>
 					<div class="cell" style="width:8%;">Visible</div>
-					<div class="cell" style="width:8%;">xAPI Trigger</div>
-					<div class="cell" style="width:8%;">Related Context</div>
-					<div class="cell" style="width:8%;">Object</div>
+					<div class="cell" style="width:8%;">xAPI Object</div>
+					<div class="cell" style="width:8%;">xAPI Tracking</div>
+					<div class="cell" style="width:8%;">Context Average</div>
 				</div>
 				<!-- ko foreach: columns -->
 				<div class="nfRow">
@@ -32,13 +32,13 @@
 						<input class="input setting-input cell" style="width:100%;height:20px;" type="checkbox" data-bind="checked:$root.columnVisible($data)">
 					</div>
 					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
+						<input class="input setting-input cell" style="width:100%;height:20px;" type="radio" name="xAPIObject" data-bind="click: $root.setXAPIObject, attr: {checked: $root.xAPIObject() == $data.name()}">
+					</div>
+					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
 						<input class="input setting-input cell" style="width:100%;height:20px;" type="checkbox" data-bind="checked:$data.xAPI">
 					</div>
 					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
 						<input class="input setting-input cell" style="width:100%;height:20px;" type="checkbox" data-bind="checked:$data.context">
-					</div>
-					<div class="cell" style="height:45px;padding-top:10px;width:8%;">
-						<input class="input setting-input cell" style="width:100%;height:20px;" type="radio" name="xAPIObject" data-bind="click: $root.setXAPIObject, attr: {checked: $root.xAPIObject() == $data.name()}">
 					</div>
 				</div>
 				<!-- /ko -->

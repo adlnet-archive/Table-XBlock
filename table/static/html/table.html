@@ -35,7 +35,7 @@
 					<!-- /ko -->
 				<!-- /ko -->
 				<!-- ko if: !type().match(/parent/gi) -->
-					<div class="row" data-bind="foreach: $root.visibleColumns()">
+					<div class="row" data-bind="foreach: $root.visibleColumns(), css: $root.addGreenToRow($data)">
 						{self._cell}
 					</div>
 				<!-- /ko -->
