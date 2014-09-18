@@ -109,7 +109,8 @@
 						window.alert("This activity has already been completed");
 						return;
 					}
-
+					
+					var prefix = 'http://adlnet.gov/expapi/activities/' + sanitize_str(studioBindObj.displayName()) + '/';
 					var stmt = new ADL.XAPIStatement();
 					var contextKey = "actid:" + studioBindObj.displayName().toLowerCase().replace(/ /g, '_');
 					stmt.verb = ADL.verbs.completed;
@@ -125,8 +126,8 @@
 							if(cols[i].name === studioBindObj.xAPIObject()){
 								var cellVal = row.values()[i].v();
 								if(cellVal){
-									stmt.object =  new ADL.XAPIStatement.Activity('http://adlnet.gov/xapi/' + sanitize_str(cellVal), cellVal);
-									key = 'http://adlnet.gov/xapi/extensions/' + sanitize_str(cols[i].name);
+									stmt.object =  new ADL.XAPIStatement.Activity(prefix + sanitize_str(cellVal), cellVal);
+									key = 'http://adlnet.gov/expapi/extensions/' + sanitize_str(studioBindObj.displayName()) + '/' + sanitize_str(cols[i].name);
 								}
 								break;
 							}
@@ -143,7 +144,7 @@
 						
 						//For each cell in this row, add its value to result extension
 						var ext = stmt.result.extensions[key] = {}, rowValues = row.values();
-						for(var g = 0; g < rowValues.length; g++){
+						for(var g = 0; g < rowValues.length && g < cols.length; g++){
 							if(cols[g].xAPI){
 								ext[sanitize_str(cols[g].name)] = rowValues[g].v();
 							}
@@ -177,9 +178,19 @@
 							}
 						}
 						
+						//If row has a parent, include its name in contextActivity
+						var parentRow = getParentRow(row);
+						if(parentRow){
+							stmt.context.contextActivity = { 
+								grouping: [{
+										id: prefix + sanitize_str(parentRow.name())
+									}]
+								};		
+						}
+						
 						var outObj = JSON.stringify(stmt);
 						console.log(JSON.stringify(stmt, null, 2));
-					
+						
 						$.ajax({
 						  type: "POST",
 						  url: trackDataHandler,
@@ -284,6 +295,22 @@
 		function cancel(){
 			runtime.notify('cancel', {});
 		}
+	}
+	
+	function getParentRow(row){
+		var rows = bindObj.rows(), emptyArr = [];
+		for(var i = 0; i < rows.length; i++){
+			var children = rows[i].children ? rows[i].children() : emptyArr;
+			if(children.length > 0){
+				for(var g = 0; g < children.length; g++){
+					if(row == children[g]){
+						return rows[i];
+					}
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	function saveUserRows(arr){
