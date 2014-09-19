@@ -83,7 +83,7 @@
 				else console.log("Not found");
 			},
 			getCellWidth: function(){
-				var perc = bindObj.allowNewColumns ? 100 / (bindObj.columns().length + 1) : 100 / bindObj.columns().length;
+				var perc = bindObj.allowNewColumns ? 100 / (bindObj.visibleColumns().length + 1) : 100 / bindObj.visibleColumns().length;
 				return perc + '%';
 			},
 			saveUserData: function(){
@@ -231,7 +231,7 @@
 		}
 		
 		bindObj.columns.subscribe(function(newVal){
-			var perc = bindObj.allowNewColumns ? 100 / (bindObj.columns().length + 1) : 100 / bindObj.columns().length;
+			var perc = bindObj.allowNewColumns ? 100 / (bindObj.visibleColumns().length + 1) : 100 / bindObj.visibleColumns().length;
 			for(var i = 0; i < bindObj.rows().length; i++){
 				bindObj.rows()[i].values.push({v: ko.observable(""), isEditing: ko.observable(false)});
 			}
