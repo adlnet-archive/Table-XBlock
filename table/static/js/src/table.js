@@ -215,13 +215,14 @@
 					if(Array.isArray(numArr) && (+numArr[numArr.length-1]) > 1){
 						tempRows.splice(i, 1);
 					}
-					else if(tempRows[i].children){
-						tempRows[i].children.removeAll();
-					}
-					
-					if(tempRows[i].values){
-						tempRows[i].values().length = 0;
-						initRowValues(true, tempRows[i]);
+					else{
+						if(tempRows[i].children){
+							tempRows[i].children.removeAll();
+						}
+						if(tempRows[i].values){
+							tempRows[i].values().length = 0;
+							initRowValues(true, tempRows[i]);
+						}
 					}
 				}
 				
