@@ -318,7 +318,7 @@
 			var outObj;
 			if(arr){
 				userRows = arr = ko.toJS(arr);
-				outObj = JSON.stringify({rows: arr, timestamp: (arr.length == 0 ? Date.now() : timestamp)});
+				outObj = JSON.stringify({rows: arr, timestamp: (arr.length == 0 || timestamp < structureTimestamp ? Date.now() : timestamp)});
 			}
 			else{
 				outObj = JSON.stringify({rows: userRows})
