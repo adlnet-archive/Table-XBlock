@@ -181,7 +181,7 @@
 						//If row has a parent, include its name in contextActivity
 						var parentRow = getParentRow(row);
 						if(parentRow){
-							stmt.context.contextActivity = { 
+							stmt.context.contextActivities = { 
 								grouping: [{
 										id: prefix + sanitize_str(parentRow.name())
 									}]
