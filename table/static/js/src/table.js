@@ -113,10 +113,19 @@
 					var prefix = 'http://adlnet.gov/expapi/activities/' + sanitize_str(studioBindObj.displayName()) + '/';
 					var stmt = new ADL.XAPIStatement();
 					var contextKey = "actid:" + studioBindObj.displayName().toLowerCase().replace(/ /g, '_');
+					var xAPIButtonIndex = -1;
 					stmt.verb = ADL.verbs.completed;
 					stmt.result = { extensions: {} };
 					stmt.context = { extensions: {} };
 					stmt.context.extensions[contextKey] = {};
+					
+					//Does this table have an xAPI onetime column?
+					for(var i = 0; i < bindObj.columns().length; i++){
+						if(bindObj.columns()[i].type == "xAPI onetimeButton"){
+							xAPIButtonIndex = i;
+							break;
+						}
+					}
 					
 					if(studioBindObj.xAPIObject()){
 						var cols = bindObj.columns(), i = 0, key = "";
@@ -156,18 +165,20 @@
 							if(cols[g].context){
 								for(var j = 0; j < allRows.length; j++){
 									var currentRow = allRows[j];
-									if(!Array.isArray(currentRow.type.match(/parent/i))){
+									if(!Array.isArray(currentRow.type.match(/parent/i)) && currentRow.values[g].v){
 										numRows++;
-										if(currentRow.values[g].v){
+										if(currentRow.values[g].v && (xAPIButtonIndex < 0 || currentRow.values[xAPIButtonIndex].v)){
 											trueCount++;
 										}
 									}
 									else{
 										for(var h = 0; h < currentRow.children.length; h++){
-											var child = currentRow.children[h];
-											numRows++;
-											if(child.values[g].v){
-												trueCount++;
+											var childVals = currentRow.children[h].values;
+											if(childVals[g].v){
+												numRows++;
+												if(childVals[g].v && (xAPIButtonIndex < 0 || childVals[xAPIButtonIndex].v)){
+													trueCount++;
+												}
 											}
 										}
 									}
