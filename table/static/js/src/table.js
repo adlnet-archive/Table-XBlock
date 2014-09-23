@@ -9,12 +9,13 @@
 	structureTimestamp,
 	userRowsHandler, handlerUrl;
 
-	window.TableXBlock = function(runtime, element) {
+	debugger;
+
+	window['TableXBlock{{randFuncName}}'] = function(runtime, element) {
 		/*if(xBlockCalled){
 			console.log("Student view already generated");
 			return;
 		}*/
-		
 		xBlockCalled = true;
 		userRowsHandler = runtime.handlerUrl(element, 'save_student_rows');
 		trackDataHandler = runtime.handlerUrl(element, 'track_data');

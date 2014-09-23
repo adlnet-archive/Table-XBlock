@@ -6,6 +6,7 @@ import json
 from xblock.core import XBlock
 from xblock.fields import Scope, Integer, String, Dict, List, UserScope, BlockScope
 from xblock.fragment import Fragment
+from random import randint
 
 
 class TableXBlock(XBlock):
@@ -69,6 +70,8 @@ class TableXBlock(XBlock):
 		frag.add_javascript(self.resource_string("static/js/lib/knockout-3.1.0.js"))
 		frag.add_javascript(self.resource_string("static/js/lib/knockout.mapping-latest.debug.js"))
 		
+		randNum = str(randint(0, 10000))
+		
 		js = self.resource_string("static/js/src/table.js")
 		tab = self.tableStructure
 		showColumns = self.showColumns
@@ -78,9 +81,10 @@ class TableXBlock(XBlock):
 		jsStr = jsStr.replace('{{showColumns}}', json.dumps(showColumns))
 		jsStr = jsStr.replace('{{userRows}}', json.dumps(userRows))
 		jsStr = jsStr.replace('{{display_name}}', self.display_name)
+		jsStr = jsStr.replace('{{randFuncName}}', randNum)
 		
 		frag.add_javascript(jsStr)
-		frag.initialize_js('TableXBlock')
+		frag.initialize_js('TableXBlock' + randNum)
 		return frag
 		
 	# TO-DO: change this view to display your data your own way.
