@@ -3,15 +3,22 @@
 		  <li class="field comp-setting-entry is-set">
 				<div class="">
 					<label class="label setting-label">Display Name</label>
-					<input class="input setting-input edit-display-name" id="edit_display_name" type="text" data-bind="value:displayName">
+					<input class="input setting-input edit-display-name" id="edit_display_name" type="text" data-bind="value:displayName"><br/>
 					<span class="tip setting-help">The title of the table that is displayed to the user</span>
 				</div>
 		  </li>
+		  <!--<li class="field comp-setting-entry is-set">
+				<div class="">
+					<label class="label setting-label">Link Data</label>
+					<select class="input setting-input" style="width:25%;" data-bind="options:$root.rowTypes"></select><br/>
+					<span class="tip setting-help">The title of the table that is displayed to the user</span>
+				</div>
+		  </li>-->
 		  <li class="field comp-setting-entry is-set">
 				<div class="nfRow">
 					<label class="label setting-label">Columns</label>
 					<button data-bind="click: addColumn">Add column</button><br/>
-					<span class="tip setting-help">The title of the chart that is displayed to the user</span>
+					<span class="tip setting-help"></span>
 				</div>
 				<div class="nfRow" data-bind="if:columns().length > 0">
 					<div class="cell" style="width:15%;">Column Label (Unique)</div>
@@ -48,7 +55,7 @@
 				<div class="nfRow">
 					<label class="label setting-label">Rows</label>
 					<button data-bind="click: addRow">Add row</button><br/>
-					<span class="tip setting-help">The title of the chart that is displayed to the user</span>
+					<span class="tip setting-help"></span>
 				</div>
 				<div class="nfRow" data-bind="if:rows().length > 0">
 					<div class="cell" style="width:25%;">Row Label</div>
