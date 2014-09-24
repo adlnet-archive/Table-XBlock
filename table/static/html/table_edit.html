@@ -7,13 +7,14 @@
 					<span class="tip setting-help">The title of the table that is displayed to the user</span>
 				</div>
 		  </li>
-		  <!--<li class="field comp-setting-entry is-set">
+		  <li class="field comp-setting-entry is-set">
 				<div class="">
 					<label class="label setting-label">Link Data</label>
-					<select class="input setting-input" style="width:25%;" data-bind="options:$root.rowTypes"></select><br/>
-					<span class="tip setting-help">The title of the table that is displayed to the user</span>
+					<select class="input setting-input" style="width:25%;" data-bind="options: $root.allStructures, value:$root.currentStructure"></select><br/>
+					<span class="tip setting-help">The title of the table that is displayed to the user</span><br/>
+					<button style="text-align:right;" data-bind="click: $root.addNewStructure">New</button>
 				</div>
-		  </li>-->
+		  </li>
 		  <li class="field comp-setting-entry is-set">
 				<div class="nfRow">
 					<label class="label setting-label">Columns</label>

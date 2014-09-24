@@ -7,7 +7,8 @@
 	userRows = userObj.rows || [], 
 	timestamp = userObj.timestamp || 0,
 	structureTimestamp,
-	userRowsHandler, handlerUrl;
+	userRowsHandler, handlerUrl,
+	fullTableStructure = {{tableStructure}};
 
 	debugger;
 
@@ -288,8 +289,17 @@
 			var finalTableStructure = ko.mapping.toJS(studioBindObj);
 			finalTableStructure._timestamp = Date.now();
 			
-			localStorage.tableStructure = JSON.stringify(finalTableStructure);
-			var outObj = JSON.stringify({tableStructure: finalTableStructure, showColumns: visibleColumnsList, displayName: finalTableStructure.displayName});
+			delete finalTableStructure.currentStructure;
+			delete finalTableStructure.allStructures;
+			fullTableStructure[studioBindObj.currentStructure()] = finalTableStructure;
+			localStorage.tableStructure = JSON.stringify(fullTableStructure);
+			
+			var outObj = JSON.stringify({
+				tableStructure: fullTableStructure, 
+				showColumns: visibleColumnsList, 
+				displayName: finalTableStructure.displayName, 
+				currentStructure: studioBindObj.currentStructure()
+			});
 
 			$.ajax({
 			  type: "POST",
@@ -407,13 +417,14 @@
 	}
 
 	function initBindObj(){
-		var tempTableStructure = {{tableStructure}};
+		debugger;
+		var tempTableStructure = fullTableStructure["{{currentStructure}}"] || {};
 		structureTimestamp = tempTableStructure._timestamp ? tempTableStructure._timestamp : 0;
 		
 		if(tempTableStructure && tempTableStructure.columns){
 			studioBindObj = ko.mapping.fromJS(tempTableStructure);
 		}
-		else if(localStorage.tableStructure){
+		else if(localStorage.tableStructure && localStorage.tableStructure["{{currentStructure}}"]){
 			studioBindObj = ko.mapping.fromJS(JSON.parse(localStorage.tableStructure));
 		}
 		else{
@@ -425,7 +436,9 @@
 				allowNewColumns: false,
 				allowNewRows: true,
 				xAPIObject: ko.observable(""),
-				displayName: ko.observable("{{display_name}}")
+				displayName: ko.observable("{{display_name}}"),
+				currentStructure: ko.observable("{{currentStructure}}"),
+				allStructures: ko.observableArray(Object.keys(fullTableStructure))
 			};
 		}
 		
@@ -435,8 +448,20 @@
 		studioBindObj.columnVisible = columnVisible;
 		studioBindObj.clearTableStructure = clearTableStructure;
 		studioBindObj.setXAPIObject =  setXAPIObject;
+		studioBindObj.addNewStructure = addNewStructure;
 		
 		updateBindObj();
+		
+		function addNewStructure(){
+			console.log("Click!!");
+			var structName = window.prompt("Enter a unique name for the new table");
+			
+			if(structName){
+				studioBindObj.allStructures.push(structName);
+				studioBindObj.currentStructure(structName);
+				studioBindObj.clearTableStructure();								
+			}
+		}
 		
 		function setXAPIObject(obj){
 			var o = obj;
@@ -456,11 +481,13 @@
 			
 			bindObj.clearUserData();			
 			
-			localStorage.removeItem("tableStructure");
+			delete fullTableStructure[studioBindObj.currentStructure()];
+			localStorage.tableStructure = JSON.stringify(fullTableStructure);
+			
 			$.ajax({
 				  type: "POST",
 				  url: handlerUrl,
-				  data: JSON.stringify({tableStructure: {}, showColumns: [], displayName: "Table XBlock"}),
+				  data: JSON.stringify({tableStructure: fullTableStructure, showColumns: [], displayName: "Table XBlock", currentStructure: "Table"}),
 				  complete: function(res){
 					  console.log("This is the response: ", res.responseText);
 					  window.alert("All cleared!");

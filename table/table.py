@@ -19,7 +19,7 @@ class TableXBlock(XBlock):
 	
 	_cell = '''<div class="cell" data-bind="style: { width: $root.getCellWidth() }">
 				<!-- ko if: $data.type == "label" -->
-					<span data-bind="text: name() + ' col'"></span>
+					<span data-bind="text: $parent.values()[$index()].v() ? $parent.values()[$index()].v() : placeholder"></span>
 				<!-- /ko -->
 				
 				<!-- ko if: $data.type == "text" || $data.type == "number" -->
@@ -41,11 +41,12 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 			</div>'''	
 			
-	tableStructure = Dict(default={}, scope=Scope.content, help="Options that will determine the table structure presented to users")
+	tableStructure = Dict(default={"Table": {}}, scope=Scope.content, help="Options that will determine the table structure presented to users")
 	showColumns = List(default=[], scope=Scope.content, help="The list of columns to show for this instance of Table")
 	userRows = Dict(default={}, scope=Scope.preferences, help="User row preferences")
+	currentStructure = String(default="Table", scope=Scope.content, help="Key representing current structure")
 	display_name = String(display_name="Table XBlock", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
-
+	
 	# TO-DO: delete count, and define your own fields.
 	count = Integer(
 		default=0, scope=Scope.user_state,
@@ -82,6 +83,7 @@ class TableXBlock(XBlock):
 		jsStr = jsStr.replace('{{userRows}}', json.dumps(userRows))
 		jsStr = jsStr.replace('{{display_name}}', self.display_name)
 		jsStr = jsStr.replace('{{randFuncName}}', randNum)
+		jsStr = jsStr.replace('{{currentStructure}}', self.currentStructure)
 		
 		frag.add_javascript(jsStr)
 		frag.initialize_js('TableXBlock' + randNum)
@@ -108,6 +110,7 @@ class TableXBlock(XBlock):
 		self.display_name = data['displayName']
 		self.tableStructure = data['tableStructure']
 		self.showColumns = data['showColumns']
+		self.currentStructure = data['currentStructure']
 		return data
 		
 	@XBlock.json_handler
