@@ -8,9 +8,9 @@
 	timestamp = userObj.timestamp || 0,
 	structureTimestamp,
 	userRowsHandler, handlerUrl,
-	fullTableStructure = {{tableStructure}};
-
-	debugger;
+	fullTableStructure = {{tableStructure}},
+	currentStructure = "{{currentStructure}}",
+	studioRuntime, studioElement;
 
 	window['TableXBlock{{randFuncName}}'] = function(runtime, element) {
 		/*if(xBlockCalled){
@@ -252,7 +252,7 @@
 			
 			//The cell has not been added yet, set timeout
 			window.setTimeout(function(){
-				$('.table_block .cell').not('#table_modal .cell').css('width', perc + '%');
+				$('.table_block .cell').not('#table_modal .cell').not('.nfRow .cell').css('width', perc + '%');
 			}, 250);
 			console.log(perc);
 		});
@@ -280,6 +280,8 @@
 	/* Javascript for studio view TableXBlock. */
 	window.StudioTableXBlock = function(runtime, element) {
 		handlerUrl = runtime.handlerUrl(element, 'save_admin_settings');
+		studioRuntime = runtime;
+		studioElement = element;
 
 		$(element).find('.save-button').bind('click', function(e) {
 			e.stopPropagation();
@@ -291,6 +293,7 @@
 			
 			delete finalTableStructure.currentStructure;
 			delete finalTableStructure.allStructures;
+
 			fullTableStructure[studioBindObj.currentStructure()] = finalTableStructure;
 			localStorage.tableStructure = JSON.stringify(fullTableStructure);
 			
@@ -368,7 +371,7 @@
 		else return userRows;
 	}
 	function sanitize_str(str){
-		return str.toLowerCase().replace(/[^0-9a-zA-Z ]/gi, '').replace(/ /gi, '_'		);
+		return str.toLowerCase().replace(/[^0-9a-zA-Z ]/gi, '').replace(/ /gi, '_');
 	}
 	function updateBindObj(){
 		
@@ -412,20 +415,22 @@
 		
 		saveUserRows(rowsArr);
 		
+		bindObj.columns.removeAll();
 		bindObj.columns(columnsArr);
+		
+		bindObj.rows.removeAll();
 		bindObj.rows(rowsArr);
 	}
 
 	function initBindObj(){
-		debugger;
-		var tempTableStructure = fullTableStructure["{{currentStructure}}"] || {};
+		var tempTableStructure = fullTableStructure[currentStructure] || {};
 		structureTimestamp = tempTableStructure._timestamp ? tempTableStructure._timestamp : 0;
 		
 		if(tempTableStructure && tempTableStructure.columns){
 			studioBindObj = ko.mapping.fromJS(tempTableStructure);
 		}
-		else if(localStorage.tableStructure && localStorage.tableStructure["{{currentStructure}}"]){
-			studioBindObj = ko.mapping.fromJS(JSON.parse(localStorage.tableStructure));
+		else if(localStorage.tableStructure && localStorage.tableStructure[currentStructure]){
+			studioBindObj = ko.mapping.fromJS(JSON.parse(localStorage.tableStructure[currentStructure]));
 		}
 		else{
 			studioBindObj = {
@@ -436,21 +441,45 @@
 				allowNewColumns: false,
 				allowNewRows: true,
 				xAPIObject: ko.observable(""),
-				displayName: ko.observable("{{display_name}}"),
-				currentStructure: ko.observable("{{currentStructure}}"),
-				allStructures: ko.observableArray(Object.keys(fullTableStructure))
+				displayName: ko.observable("{{display_name}}")
 			};
 		}
-		
-		
+
 		studioBindObj.addColumn = addColumn;
 		studioBindObj.addRow = addRow;
 		studioBindObj.columnVisible = columnVisible;
 		studioBindObj.clearTableStructure = clearTableStructure;
 		studioBindObj.setXAPIObject =  setXAPIObject;
 		studioBindObj.addNewStructure = addNewStructure;
-		
+		studioBindObj.allStructures = ko.observableArray(Object.keys(fullTableStructure));
+		studioBindObj.currentStructure = ko.observable(currentStructure);
+		studioBindObj.currentStructure.subscribe(currentStructChange);
+
 		updateBindObj();
+		
+		function currentStructChange(newVal){
+
+			//initBindObj();
+
+			currentStructure = newVal;
+			studioBindObj.columns.removeAll();
+			studioBindObj.rows.removeAll();
+
+			var struct = ko.mapping.fromJS($.extend(true, {}, fullTableStructure[currentStructure]));
+			var rows = struct.rows();
+			var cols = struct.columns();
+			
+			studioBindObj.xAPIObject(struct.xAPIObject());
+			studioBindObj.displayName(struct.displayName());
+			for(var i = 0; i < rows.length || i < cols.length; i++){
+				if(i < rows.length)
+					studioBindObj.rows.push(rows[i]);
+				if(i < cols.length)
+					studioBindObj.columns.push(cols[i]);
+			}
+			
+			updateBindObj();
+		}
 		
 		function addNewStructure(){
 			console.log("Click!!");
@@ -474,6 +503,7 @@
 			return true;
 		}
 		function clearTableStructure(){
+			var currentStructure = typeof studioBindObj.currentStructure === "string" ? studioBindObj.currentStructure : studioBindObj.currentStructure();
 			bindObj.rows.removeAll();
 			bindObj.columns.removeAll();
 			studioBindObj.columns.removeAll();
@@ -481,7 +511,8 @@
 			
 			bindObj.clearUserData();			
 			
-			delete fullTableStructure[studioBindObj.currentStructure()];
+			delete fullTableStructure[currentStructure];
+			fullTableStructure["Table"] = fullTableStructure["Table"] ? fullTableStructure["Table"] : {};
 			localStorage.tableStructure = JSON.stringify(fullTableStructure);
 			
 			$.ajax({
