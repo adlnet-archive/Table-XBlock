@@ -2,8 +2,9 @@
 	/* Javascript for TableXBlock. */
 	var bindObj, studioBindObj, 
 	visibleColumnsList = {{showColumns}}, 
-	xBlockCalled = false, 
-	userObj = {{userRows}}, 
+	xBlockCalled = false,
+	allUserObjs = {{userRows}}, 
+	userObj = allUserObjs["{{currentStructure}}"] || {}, 
 	userRows = userObj.rows || [], 
 	timestamp = userObj.timestamp || 0,
 	structureTimestamp,
@@ -283,37 +284,7 @@
 		studioRuntime = runtime;
 		studioElement = element;
 
-		$(element).find('.save-button').bind('click', function(e) {
-			e.stopPropagation();
-			runtime.notify('cancel', {});
-			updateBindObj();
-			
-			var finalTableStructure = ko.mapping.toJS(studioBindObj);
-			finalTableStructure._timestamp = Date.now();
-			
-			delete finalTableStructure.currentStructure;
-			delete finalTableStructure.allStructures;
-
-			fullTableStructure[studioBindObj.currentStructure()] = finalTableStructure;
-			localStorage.tableStructure = JSON.stringify(fullTableStructure);
-			
-			var outObj = JSON.stringify({
-				tableStructure: fullTableStructure, 
-				showColumns: visibleColumnsList, 
-				displayName: finalTableStructure.displayName, 
-				currentStructure: studioBindObj.currentStructure()
-			});
-
-			$.ajax({
-			  type: "POST",
-			  url: handlerUrl,
-			  data: outObj,
-			  complete: function(res){
-				  console.log("This is the response: ", res.responseText);
-			  },
-			  contentType: "application/json; charset=UTF-8",
-			});
-		});
+		$(element).find('.save-button').bind('click', saveStudioStructure);
 		
 		studioBindObj.cancel = cancel;
 		ko.applyBindings(studioBindObj, (element instanceof $ ? element[0] : element));
@@ -321,6 +292,40 @@
 		function cancel(){
 			runtime.notify('cancel', {});
 		}
+	}
+	
+	function saveStudioStructure(e){
+		if(e) {
+			e.stopPropagation();
+			studioRuntime.notify('cancel', {});
+		}
+		updateBindObj();
+		
+		var finalTableStructure = ko.mapping.toJS(studioBindObj);
+		finalTableStructure._timestamp = Date.now();
+		
+		delete finalTableStructure.currentStructure;
+		delete finalTableStructure.allStructures;
+
+		fullTableStructure[studioBindObj.currentStructure()] = finalTableStructure;
+		localStorage.tableStructure = JSON.stringify(fullTableStructure);
+		
+		var outObj = JSON.stringify({
+			tableStructure: fullTableStructure, 
+			showColumns: visibleColumnsList, 
+			displayName: finalTableStructure.displayName, 
+			currentStructure: studioBindObj.currentStructure()
+		});
+
+		$.ajax({
+		  type: "POST",
+		  url: handlerUrl,
+		  data: outObj,
+		  complete: function(res){
+			  console.log("This is the response: ", res.responseText);
+		  },
+		  contentType: "application/json; charset=UTF-8",
+		});
 	}
 	
 	function getParentRow(row){
@@ -344,12 +349,14 @@
 			var outObj;
 			if(arr){
 				userRows = arr = ko.toJS(arr);
-				outObj = JSON.stringify({rows: arr, timestamp: (arr.length == 0 || timestamp < structureTimestamp ? Date.now() : timestamp)});
+				allUserObjs[currentStructure] = {rows: arr, timestamp: (arr.length == 0 || timestamp < structureTimestamp ? Date.now() : timestamp)};
+				outObj = JSON.stringify(allUserObjs);
 			}
 			else{
-				outObj = JSON.stringify({rows: userRows})
+				allUserObjs[currentStructure] = {rows: userRows};
+				outObj = JSON.stringify(allUserObjs)
 			}
-
+			
 			$.ajax({
 				  type: "POST",
 				  url: userRowsHandler,
@@ -478,7 +485,7 @@
 					studioBindObj.columns.push(cols[i]);
 			}
 			
-			updateBindObj();
+			saveStudioStructure();
 		}
 		
 		function addNewStructure(){
