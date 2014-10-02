@@ -12,7 +12,7 @@
 	currentStructure = "{{currentStructure}}",
 	studioRuntime, studioElement;
 	
-	window.fullTableStructure = window.fullTableStructure || {{tableStructure}};
+	window.fullTableStructure = $.extend(true, window.fullTableStructure || {}, {{tableStructure}});
 
 	window['TableXBlock{{randFuncName}}'] = function(runtime, element) {
 		/*if(xBlockCalled){
