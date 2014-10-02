@@ -9,9 +9,10 @@
 	timestamp = userObj.timestamp || 0,
 	structureTimestamp,
 	userRowsHandler, handlerUrl,
-	fullTableStructure = {{tableStructure}},
 	currentStructure = "{{currentStructure}}",
 	studioRuntime, studioElement;
+	
+	window.fullTableStructure = window.fullTableStructure || {{tableStructure}};
 
 	window['TableXBlock{{randFuncName}}'] = function(runtime, element) {
 		/*if(xBlockCalled){
@@ -307,11 +308,11 @@
 		delete finalTableStructure.currentStructure;
 		delete finalTableStructure.allStructures;
 
-		fullTableStructure[studioBindObj.currentStructure()] = finalTableStructure;
-		localStorage.tableStructure = JSON.stringify(fullTableStructure);
+		window.fullTableStructure[studioBindObj.currentStructure()] = finalTableStructure;
+		localStorage.tableStructure = JSON.stringify(window.fullTableStructure);
 		
 		var outObj = JSON.stringify({
-			tableStructure: fullTableStructure, 
+			tableStructure: window.fullTableStructure, 
 			showColumns: visibleColumnsList, 
 			displayName: finalTableStructure.displayName, 
 			currentStructure: studioBindObj.currentStructure()
@@ -430,7 +431,7 @@
 	}
 
 	function initBindObj(){
-		var tempTableStructure = fullTableStructure[currentStructure] || {};
+		var tempTableStructure = window.fullTableStructure[currentStructure] || {};
 		structureTimestamp = tempTableStructure._timestamp ? tempTableStructure._timestamp : 0;
 		
 		if(tempTableStructure && tempTableStructure.columns){
@@ -458,7 +459,7 @@
 		studioBindObj.clearTableStructure = clearTableStructure;
 		studioBindObj.setXAPIObject =  setXAPIObject;
 		studioBindObj.addNewStructure = addNewStructure;
-		studioBindObj.allStructures = ko.observableArray(Object.keys(fullTableStructure));
+		studioBindObj.allStructures = ko.observableArray(Object.keys(window.fullTableStructure));
 		studioBindObj.currentStructure = ko.observable(currentStructure);
 		studioBindObj.currentStructure.subscribe(currentStructChange);
 
@@ -472,7 +473,7 @@
 			studioBindObj.columns.removeAll();
 			studioBindObj.rows.removeAll();
 
-			var struct = ko.mapping.fromJS($.extend(true, {rows: [], columns: [], xAPIObject: "", displayName: "Table XBlock"}, fullTableStructure[currentStructure]));
+			var struct = ko.mapping.fromJS($.extend(true, {rows: [], columns: [], xAPIObject: "", displayName: "Table XBlock"}, window.fullTableStructure[currentStructure]));
 			var rows = struct.rows();
 			var cols = struct.columns();
 			
@@ -518,14 +519,14 @@
 			
 			bindObj.clearUserData();			
 			
-			delete fullTableStructure[currentStructure];
-			fullTableStructure["Table"] = fullTableStructure["Table"] ? fullTableStructure["Table"] : {};
-			localStorage.tableStructure = JSON.stringify(fullTableStructure);
+			delete window.fullTableStructure[currentStructure];
+			window.fullTableStructure["Table"] = fullTableStructure["Table"] ? fullTableStructure["Table"] : {};
+			localStorage.tableStructure = JSON.stringify(window.fullTableStructure);
 			
 			$.ajax({
 				  type: "POST",
 				  url: handlerUrl,
-				  data: JSON.stringify({tableStructure: fullTableStructure, showColumns: [], displayName: "Table XBlock", currentStructure: "Table"}),
+				  data: JSON.stringify({tableStructure: window.fullTableStructure, showColumns: [], displayName: "Table XBlock", currentStructure: "Table"}),
 				  complete: function(res){
 					  console.log("This is the response: ", res.responseText);
 					  window.alert("All cleared!");
