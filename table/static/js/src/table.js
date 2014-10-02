@@ -472,7 +472,7 @@
 			studioBindObj.columns.removeAll();
 			studioBindObj.rows.removeAll();
 
-			var struct = ko.mapping.fromJS($.extend(true, {}, fullTableStructure[currentStructure]));
+			var struct = ko.mapping.fromJS($.extend(true, {rows: [], columns: [], xAPIObject: "", displayName: "Table XBlock"}, fullTableStructure[currentStructure]));
 			var rows = struct.rows();
 			var cols = struct.columns();
 			
