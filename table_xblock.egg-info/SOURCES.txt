@@ -3,7 +3,12 @@ table/table.py
 table/static/README.txt
 table/static/css/table.css
 table/static/html/table.html
+table/static/html/table_edit.html
+table/static/js/lib/knockout-3.1.0.js
+table/static/js/lib/knockout.mapping-latest.debug.js
+table/static/js/lib/xapiwrapper.min.js
 table/static/js/src/table.js
+table/static/js/src/table_edit.js
 table_xblock.egg-info/PKG-INFO
 table_xblock.egg-info/SOURCES.txt
 table_xblock.egg-info/dependency_links.txt
