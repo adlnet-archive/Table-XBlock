@@ -3,7 +3,7 @@
 	var currentStructure = "{{currentStructure}}";
 	
 	var bindObj, studioBindObj, 
-	visibleColumnsList = {{showColumns}}, 
+	visibleColumnsList = {{showColumns}} || [], 
 	xBlockCalled = false,
 	allUserObjs = {{userRows}}, 
 	currentStructure = currentStructure && currentStructure != "undefined" ? currentStructure : "Table",
