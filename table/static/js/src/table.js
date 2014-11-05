@@ -1,15 +1,17 @@
 (function(){
 	/* Javascript for TableXBlock. */
+	var currentStructure = "{{currentStructure}}";
+	
 	var bindObj, studioBindObj, 
 	visibleColumnsList = {{showColumns}}, 
 	xBlockCalled = false,
-	allUserObjs = JSON.parse("{{userRows}}"), 
-	userObj = allUserObjs["{{currentStructure}}"] || {}, 
+	allUserObjs = {{userRows}}, 
+	currentStructure = currentStructure && currentStructure != "undefined" ? currentStructure : "Table",
+	userObj = allUserObjs[currentStructure] || {}, 
 	userRows = userObj.rows || [], 
 	timestamp = userObj.timestamp || 0,
 	structureTimestamp,
 	userRowsHandler, handlerUrl,
-	currentStructure = "{{currentStructure}}",
 	studioRuntime, studioElement;
 	
 	var lStructure;
@@ -19,7 +21,7 @@
 	catch(e){
 		lStructure = {};
 	}
-	window.fullTableStructure = $.extend(true, window.fullTableStructure || {}, JSON.parse("{{tableStructure}}"), lStructure);
+	window.fullTableStructure = $.extend(true, window.fullTableStructure || {}, {{tableStructure}}, lStructure);
 
 	window['TableXBlock{{randFuncName}}'] = function(runtime, element) {
 		/*if(xBlockCalled){
@@ -319,7 +321,7 @@
 		localStorage.tableStructure = JSON.stringify(window.fullTableStructure);
 		
 		var outObj = JSON.stringify({
-			tableStructure: JSON.stringify(window.fullTableStructure), 
+			tableStructure: window.fullTableStructure, 
 			showColumns: visibleColumnsList, 
 			displayName: finalTableStructure.displayName, 
 			currentStructure: studioBindObj.currentStructure()
@@ -533,7 +535,7 @@
 			$.ajax({
 				  type: "POST",
 				  url: handlerUrl,
-				  data: JSON.stringify({tableStructure: JSON.stringify(window.fullTableStructure), showColumns: [], displayName: "Table XBlock", currentStructure: "Table"}),
+				  data: JSON.stringify({tableStructure: window.fullTableStructure, showColumns: [], displayName: "Table XBlock", currentStructure: "Table"}),
 				  complete: function(res){
 					  console.log("This is the response: ", res.responseText);
 					  window.alert("All cleared!");

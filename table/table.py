@@ -75,6 +75,7 @@ class TableXBlock(XBlock):
 		randNum = str(randint(0, 10000))
 		js = self.resource_string("static/js/src/table.js")
 		tab = None
+		showColumns = None
 		
 		try:
 			tab = self.tableStructure
@@ -84,6 +85,7 @@ class TableXBlock(XBlock):
 			# Using a temp var here to make the stacktrace a bit nicer if there's an error
 			temp = self._field_data.get(self, "tableStructure")
 			tab = ast.literal_eval(temp)	
+			self.tableStructure = tab
 		
 		try:
 			tab = self.showColumns
@@ -93,6 +95,7 @@ class TableXBlock(XBlock):
 			# Using a temp var here to make the stacktrace a bit nicer if there's an error
 			temp = self._field_data.get(self, "showColumns")
 			showColumns = ast.literal_eval(temp)	
+			self.showColumns = showColumns
 
 		userRows = self.userRows
 		
