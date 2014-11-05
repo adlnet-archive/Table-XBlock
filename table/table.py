@@ -88,7 +88,7 @@ class TableXBlock(XBlock):
 			self.tableStructure = tab
 		
 		try:
-			tab = self.showColumns
+			showColumns = self.showColumns
 		except TypeError as e:
 			print("Handled TypeError: Will manually try to convert showColumns JSON to Dict")
 				
