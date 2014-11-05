@@ -85,7 +85,6 @@ class TableXBlock(XBlock):
 			# Using a temp var here to make the stacktrace a bit nicer if there's an error
 			temp = self._field_data.get(self, "tableStructure")
 			tab = ast.literal_eval(temp)	
-			self.tableStructure = tab
 		
 		try:
 			showColumns = self.showColumns
@@ -95,10 +94,9 @@ class TableXBlock(XBlock):
 			# Using a temp var here to make the stacktrace a bit nicer if there's an error
 			temp = self._field_data.get(self, "showColumns")
 			showColumns = ast.literal_eval(temp)	
-			self.showColumns = showColumns
 
 		userRows = self.userRows
-		
+				
 		jsStr = js.replace('{{tableStructure}}', json.dumps(tab))
 		jsStr = jsStr.replace('{{showColumns}}', json.dumps(showColumns))
 		jsStr = jsStr.replace('{{userRows}}', json.dumps(userRows))
@@ -132,6 +130,20 @@ class TableXBlock(XBlock):
 		self.tableStructure = data['tableStructure']
 		self.showColumns = data['showColumns']
 		self.currentStructure = data['currentStructure']
+
+		return data
+
+
+	# TO-DO: change this handler to perform your own actions.  You may need more
+	# than one handler, or you may not need any handlers at all.
+	@XBlock.json_handler
+	def clear_data(self, data, suffix=''):
+		"""
+		An example handler, which increments the data.
+		"""
+		del self.tableStructure
+		del self.showColumns
+
 		return data
 		
 	@XBlock.json_handler
@@ -141,8 +153,7 @@ class TableXBlock(XBlock):
 		"""
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
-		
-		self.userRows = data
+		#self.userRows = data
 		return data
 		
 	@XBlock.json_handler
