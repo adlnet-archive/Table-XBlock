@@ -2,6 +2,7 @@
 
 import pkg_resources
 import json
+import ast
 
 from xblock.core import XBlock
 from xblock.fields import Scope, Integer, String, Dict, List, UserScope, BlockScope
@@ -72,10 +73,27 @@ class TableXBlock(XBlock):
 		frag.add_javascript(self.resource_string("static/js/lib/knockout.mapping-latest.debug.js"))
 		
 		randNum = str(randint(0, 10000))
-		
 		js = self.resource_string("static/js/src/table.js")
-		tab = self.tableStructure
-		showColumns = self.showColumns
+		tab = None
+		
+		try:
+			tab = self.tableStructure
+		except TypeError as e:
+			print("Handled TypeError: Will manually try to convert tableStructure JSON to Dict")
+				
+			# Using a temp var here to make the stacktrace a bit nicer if there's an error
+			temp = self._field_data.get(self, "tableStructure")
+			tab = ast.literal_eval(temp)	
+		
+		try:
+			tab = self.showColumns
+		except TypeError as e:
+			print("Handled TypeError: Will manually try to convert showColumns JSON to Dict")
+				
+			# Using a temp var here to make the stacktrace a bit nicer if there's an error
+			temp = self._field_data.get(self, "showColumns")
+			showColumns = ast.literal_eval(temp)	
+
 		userRows = self.userRows
 		
 		jsStr = js.replace('{{tableStructure}}', json.dumps(tab))
@@ -120,7 +138,7 @@ class TableXBlock(XBlock):
 		"""
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
-
+		
 		self.userRows = data
 		return data
 		
@@ -142,7 +160,7 @@ class TableXBlock(XBlock):
 		return [
 			("TableXBlock",
 			 """<vertical_demo>
-				<table/>
+  <table url_name="591ea471f35e40319af625e81fe06b2b" display_name="Table XBlock" showColumns="[u'[Column name]', u'Exercise']" currentStructure="Table" tableStructure="{u'Table': {u'rows': [], u'displayName': u'Table XBlock', u'rowTypes': [u'normal', u'parent', u'appendable', u'parentAppendable'], u'columnTypes': [u'text', u'textarea', u'checkbox', u'label', u'number', u'xAPI button', u'xAPI onetimeButton'], u'_timestamp': 1414598392210L, u'allowNewRows': True, u'allowNewColumns': False, u'columns': [{u'type': u'text', u'placeholder': u'', u'name': u'Exercise', u'context': False, u'xAPI': False}], u'xAPIObject': ''}}"/>
 				</vertical_demo>
 			 """),
 		]
