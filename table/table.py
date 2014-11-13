@@ -42,8 +42,8 @@ class TableXBlock(XBlock):
 				<!-- /ko -->
 			</div>'''	
 			
-	tableStructure = Dict(default={"Table": {}}, scope=Scope.content, help="Options that will determine the table structure presented to users")
-	showColumns = List(default=[], scope=Scope.content, help="The list of columns to show for this instance of Table")
+	s_tableStructure = String(default='{"Table": {}}', scope=Scope.content, help="Options that will determine the table structure presented to users")
+	s_showColumns = String(default='[]', scope=Scope.content, help="The list of columns to show for this instance of Table")
 	userRows = Dict(default={}, scope=Scope.preferences, help="User row preferences")
 	currentStructure = String(default="Table", scope=Scope.content, help="Key representing current structure")
 	display_name = String(display_name="Table XBlock", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
@@ -74,31 +74,13 @@ class TableXBlock(XBlock):
 		
 		randNum = str(randint(0, 10000))
 		js = self.resource_string("static/js/src/table.js")
-		tab = None
-		showColumns = None
-		
-		try:
-			tab = self.tableStructure
-		except TypeError as e:
-			print("Handled TypeError: Will manually try to convert tableStructure JSON to Dict")
-				
-			# Using a temp var here to make the stacktrace a bit nicer if there's an error
-			temp = self._field_data.get(self, "tableStructure")
-			tab = ast.literal_eval(temp)	
-		
-		try:
-			showColumns = self.showColumns
-		except TypeError as e:
-			print("Handled TypeError: Will manually try to convert showColumns JSON to Dict")
-				
-			# Using a temp var here to make the stacktrace a bit nicer if there's an error
-			temp = self._field_data.get(self, "showColumns")
-			showColumns = ast.literal_eval(temp)	
+		tab = self.s_tableStructure
+		showColumns = self.s_showColumns	
 
 		userRows = self.userRows
 				
-		jsStr = js.replace('{{tableStructure}}', json.dumps(tab))
-		jsStr = jsStr.replace('{{showColumns}}', json.dumps(showColumns))
+		jsStr = js.replace('{{tableStructure}}', tab)
+		jsStr = jsStr.replace('{{showColumns}}', showColumns)
 		jsStr = jsStr.replace('{{userRows}}', json.dumps(userRows))
 		jsStr = jsStr.replace('{{display_name}}', self.display_name)
 		jsStr = jsStr.replace('{{randFuncName}}', randNum)
@@ -128,12 +110,8 @@ class TableXBlock(XBlock):
 		
 		self.display_name = data['displayName']
 		self.currentStructure = data['currentStructure']
-		
-		try:
-			self.tableStructure = data['tableStructure']
-			self.showColumns = data['showColumns']
-		except:
-			print("Fields are write protected, aborting write")
+		self.s_tableStructure = data['tableStructure']
+		self.s_showColumns = data['showColumns']
 		
 		return data
 
