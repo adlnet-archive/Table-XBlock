@@ -47,7 +47,7 @@ class TableXBlock(XBlock):
 	userRows = Dict(default={}, scope=Scope.preferences, help="User row preferences")
 	currentStructure = String(default="Table", scope=Scope.content, help="Key representing current structure")
 	display_name = String(display_name="Table XBlock", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
-	
+
 	# TO-DO: delete count, and define your own fields.
 	count = Integer(
 		default=0, scope=Scope.user_state,
@@ -127,10 +127,14 @@ class TableXBlock(XBlock):
 		#assert data['hello'] == 'world'
 		
 		self.display_name = data['displayName']
-		self.tableStructure = data['tableStructure']
-		self.showColumns = data['showColumns']
 		self.currentStructure = data['currentStructure']
-
+		
+		try:
+			self.tableStructure = data['tableStructure']
+			self.showColumns = data['showColumns']
+		except:
+			print("Fields are write protected, aborting write")
+		
 		return data
 
 
