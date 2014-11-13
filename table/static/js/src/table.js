@@ -100,41 +100,7 @@
 				return perc + '%';
 			},
 			saveUserData: function(){
-				console.log("Saving user data");
-				var state = {
-					rows: ko.toJS(bindObj.rows), 
-					columns: ko.toJS(bindObj.columns)
-				};
-				
-				var activityId = 'http://adlnet.gov/expapi/activities/' + sanitize_str(studioBindObj.displayName()) + '/',
-				    stateId = sanitize_str(studioBindObj.displayName() + " state"),
-				    agent = JSON.stringify({
-					objectType: "Agent", 
-					account: { homePage: "http://adlx.adlnet.gov", name: "Mick" }
-				    });
-				
-				var queryArgs = "activityId=" + encodeURIComponent(activityId) + "&agent=" + encodeURIComponent(agent) + "&stateId=" + encodeURIComponent(stateId);
-				var saveCSFRToken = $.ajaxSettings.headers["X-CSRFToken"];
-				delete $.ajaxSettings.headers["X-CSRFToken"];			
-
-				$.ajax({
-				  type: "POST",
-				  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
-				  data: state,
-				  headers: {
-					"X-Experience-API-Version": "1.0",
-					"Authorization": "Basic " + btoa("user:pass")
-				  },
-				  complete: function(res){
-					  console.log("This is the response for tracking data: ", res.responseText);
-					 // saveUserRows(bindObj.rows);
-					debugger;
-				  },
-				  contentType: "application/json; charset=UTF-8",
-				});
-				
-				$.ajaxSettings.headers["X-CSRFToken"] = saveCSFRToken;			
-				
+				console.log("Saving user data");				
 				saveUserRows(bindObj.rows);
 			},
 			addGreenToRow: function(row){
