@@ -106,11 +106,19 @@
 					columns: ko.toJS(bindObj.columns)
 				};
 				
+				var userName = "Anonymous";
+				try{
+					userName = $('.user-link').text().split(":")[1].trim();
+				}
+				catch(e){
+					console.error("Couldn't find user name in the DOM, defaulting to Anonymous");
+				}
+				
 				var activityId = 'http://adlnet.gov/expapi/activities/' + sanitize_str(studioBindObj.displayName()) + '/',
 				    stateId = sanitize_str(studioBindObj.displayName() + " state"),
 				    agent = JSON.stringify({
 					objectType: "Agent", 
-					account: { homePage: "http://adlx.adlnet.gov", name: "Mick" }
+					account: { homePage: "http://adlx.adlnet.gov", name: userName}
 				    });
 				
 				var queryArgs = "activityId=" + encodeURIComponent(activityId) + "&agent=" + encodeURIComponent(agent) + "&stateId=" + encodeURIComponent(stateId);
@@ -126,9 +134,9 @@
 					"Authorization": "Basic " + btoa("user:pass")
 				  },
 				  complete: function(res){
-					  console.log("This is the response for tracking data: ", res.responseText);
-					 // saveUserRows(bindObj.rows);
-					debugger;
+					console.log("This is the response for tracking data: ", res.responseText);
+					saveUserRows(bindObj.rows);
+					//debugger;
 				  },
 				  contentType: "application/json; charset=UTF-8",
 				});
