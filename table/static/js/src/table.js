@@ -101,11 +101,29 @@
 			},
 			saveUserData: function(){
 				console.log("Saving user data");
+				
+				var rows = ko.toJS(bindObj.rows);
+				var columns = ko.toJS(bindObj.columns);
 				var state = {
-					rows: ko.toJS(bindObj.rows), 
-					columns: ko.toJS(bindObj.columns)
+					rows: []
 				};
 				
+				//Get rid of junk data in rows/columns and use friendlier formatting
+				for(var i = 0; i < rows.length; i++){
+					state.rows.push({name: rows[i].value, children: []});
+					var children = rows[i].children;
+					for(var g = 0; g < children.length; g++){
+						var childVals = children[g].values;
+						var pushObj = {};
+
+						state.rows[i].children.push(pushObj);
+						
+						for(var j = 0; j < columns.length; j++){
+							pushObj[columns[j].name] = childVals[j].v;
+						}						
+					}
+				}
+	
 				var userName = "Anonymous";
 				try{
 					userName = $('.user-link').text().split(":")[1].trim();
