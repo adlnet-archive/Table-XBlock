@@ -146,7 +146,7 @@
 				$.ajax({
 				  type: "POST",
 				  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
-				  data: state,
+				  data: JSON.stringify(state),
 				  headers: {
 					"X-Experience-API-Version": "1.0",
 					"Authorization": "Basic " + btoa("user:pass")
