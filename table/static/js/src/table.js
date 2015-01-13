@@ -122,46 +122,28 @@
 							pushObj[columns[j].name] = childVals[j].v;
 						}						
 					}
-				}
-	
-				var userName = "Anonymous";
-				try{
-					userName = $('.user-link').text().split(":")[1].trim();
-				}
-				catch(e){
-					console.error("Couldn't find user name in the DOM, defaulting to Anonymous");
-				}
+				}	
 				
-				var activityId = 'http://adlnet.gov/expapi/activities/' + sanitize_str(studioBindObj.displayName()) + '/',
-				    stateId = sanitize_str(studioBindObj.displayName() + " state"),
-				    agent = JSON.stringify({
-					objectType: "Agent", 
-					account: { homePage: "http://adlx.adlnet.gov", name: userName}
-				    });
-				
-				var queryArgs = "activityId=" + encodeURIComponent(activityId) + "&agent=" + encodeURIComponent(agent) + "&stateId=" + encodeURIComponent(stateId);
-				var saveCSFRToken = $.ajaxSettings.headers["X-CSRFToken"];
-				delete $.ajaxSettings.headers["X-CSRFToken"];			
-
-				$.ajax({
-				  type: "POST",
-				  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
-				  data: JSON.stringify(state),
-				  headers: {
-					"X-Experience-API-Version": "1.0",
-					"Authorization": "Basic " + btoa("user:pass")
-				  },
-				  complete: function(res){
-					console.log("This is the response for tracking data: ", res.responseText);
-					saveUserRows(bindObj.rows);
-					//debugger;
-				  },
-				  contentType: "application/json; charset=UTF-8",
+				syncStateInfo(function(){
+					initStateAPI(function(queryArgs){
+						$.ajax({
+						  type: "POST",
+						  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
+						  data: JSON.stringify(state),
+						  headers: {
+							"X-Experience-API-Version": "1.0",
+							"Authorization": "Basic " + btoa("user:pass")
+						  },
+						  complete: function(res){
+							console.log("This is the response for tracking data: ", res.responseText);
+							debugger;
+							saveUserRows(bindObj.rows);
+							//debugger;
+						  },
+						  contentType: "application/json; charset=UTF-8",
+						});		
+					});
 				});
-				
-				$.ajaxSettings.headers["X-CSRFToken"] = saveCSFRToken;			
-				
-				saveUserRows(bindObj.rows);
 			},
 			addGreenToRow: function(row){
 				return ko.computed(function(){
@@ -498,6 +480,53 @@
 		
 		bindObj.rows.removeAll();
 		bindObj.rows(rowsArr);
+	}
+	
+	function syncStateInfo(syncCompleteCB){
+		initStateAPI(function(queryArgs){
+			$.ajax({
+			  type: "GET",
+			  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
+			  headers: {
+				"X-Experience-API-Version": "1.0",
+				"Authorization": "Basic " + btoa("user:pass")
+			  },
+			  complete: function(res){
+				console.log("This is the response for tracking data: ", res.responseText);
+				debugger;
+				//saveUserRows(bindObj.rows);
+				//debugger;
+				
+				syncCompleteCB();
+			  },
+			  contentType: "application/json; charset=UTF-8",
+			});		
+		});
+	}
+	
+	function initStateAPI(cb){	
+		var userName = "Anonymous";
+		try{
+			userName = $('.user-link').text().split(":")[1].trim();
+		}
+		catch(e){
+			console.error("Couldn't find user name in the DOM, defaulting to Anonymous");
+		}
+		
+		var activityId = 'http://adlnet.gov/expapi/activities/' + sanitize_str(studioBindObj.displayName()) + '/',
+			stateId = sanitize_str(studioBindObj.displayName() + " state"),
+			agent = JSON.stringify({
+			objectType: "Agent", 
+			account: { homePage: "http://adlx.adlnet.gov", name: userName}
+			});
+		
+		var queryArgs = "activityId=" + encodeURIComponent(activityId) + "&agent=" + encodeURIComponent(agent) + "&stateId=" + encodeURIComponent(stateId);
+		var saveCSFRToken = $.ajaxSettings.headers["X-CSRFToken"];
+		delete $.ajaxSettings.headers["X-CSRFToken"];			
+		
+		cb(queryArgs);
+		
+		$.ajaxSettings.headers["X-CSRFToken"] = saveCSFRToken;	
 	}
 
 	function initBindObj(){

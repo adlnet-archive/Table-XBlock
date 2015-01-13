@@ -135,7 +135,7 @@ class TableXBlock(XBlock):
 		"""
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
-		#self.userRows = data
+		self.userRows = data
 		return data
 		
 	@XBlock.json_handler
