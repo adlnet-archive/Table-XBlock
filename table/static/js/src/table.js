@@ -530,7 +530,7 @@
 				//saveUserRows(bindObj.rows);
 				//debugger;
 				
-				//syncCompleteCB();
+				syncCompleteCB();
 			  },
 			  contentType: "application/json; charset=UTF-8",
 			});		
