@@ -136,9 +136,6 @@
 						  },
 						  complete: function(res){
 							console.log("This is the response for tracking data: ", res.responseText);		
-							
-							debugger;
-							saveUserRows(bindObj.rows);
 							//debugger;
 						  },
 						  contentType: "application/json; charset=UTF-8",
@@ -258,7 +255,7 @@
 						
 						var outObj = JSON.stringify(stmt);
 						console.log(JSON.stringify(stmt, null, 2));
-						
+						syncStateInfo();
 						$.ajax({
 						  type: "POST",
 						  url: trackDataHandler,
@@ -331,6 +328,7 @@
 		});
 		
 		ko.applyBindings(bindObj, (element instanceof $ ? element[0] : element));
+		window.setInterval(syncStateInfo, 30000);
 	}
 	/* Javascript for studio view TableXBlock. */
 	window.StudioTableXBlock = function(runtime, element) {
@@ -525,12 +523,9 @@
 						}
 					}
 				}	
-				
-				debugger;
-				//saveUserRows(bindObj.rows);
-				//debugger;
-				
-				syncCompleteCB();
+
+				saveUserRows(bindObj.rows);
+				if(syncCompleteCB) syncCompleteCB();
 			  },
 			  contentType: "application/json; charset=UTF-8",
 			});		
