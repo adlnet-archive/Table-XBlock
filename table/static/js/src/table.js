@@ -135,7 +135,8 @@
 							"Authorization": "Basic " + btoa("user:pass")
 						  },
 						  complete: function(res){
-							console.log("This is the response for tracking data: ", res.responseText);
+							console.log("This is the response for tracking data: ", res.responseText);		
+							
 							debugger;
 							saveUserRows(bindObj.rows);
 							//debugger;
@@ -493,11 +494,43 @@
 			  },
 			  complete: function(res){
 				console.log("This is the response for tracking data: ", res.responseText);
+				
+				var rows = false;
+				try{
+					rows = JSON.parse(res.responseText)['rows'];
+				}
+				catch(e){
+					console.error("Unable to parse responseText: ", rows);
+				}
+				
+				//Find index of completed column
+				var completedIndex = -1;
+				for(var i = 0; i < bindObj.columns().length; i++){
+					if(bindObj.columns()[i].name == "Completed"){
+						completedIndex = i;
+						break;
+					}
+				}
+				
+				if(rows && completedIndex > -1){
+					for(var i = 0; i < rows.length && i < bindObj.rows().length; i++){
+						var oldChildren = bindObj.rows()[i].children();
+						var newChildren = rows[i].children;
+						
+						for(var g = 0; g < oldChildren.length && g < newChildren.length; g++){
+							if(oldChildren[g].values()[completedIndex].v() != true && newChildren[g]["Completed"] === true){
+								//UPDATED COMPLETED STATUS
+								oldChildren[g].values()[completedIndex].v(true);
+							}
+						}
+					}
+				}	
+				
 				debugger;
 				//saveUserRows(bindObj.rows);
 				//debugger;
 				
-				syncCompleteCB();
+				//syncCompleteCB();
 			  },
 			  contentType: "application/json; charset=UTF-8",
 			});		
