@@ -132,7 +132,7 @@
 						  data: JSON.stringify(state),
 						  headers: {
 							"X-Experience-API-Version": "1.0",
-							"Authorization": "Basic " + btoa("user:pass")
+							"Authorization": "Basic " + btoa("edxBridge:BasicAuthIsKindaLame")
 						  },
 						  complete: function(res){
 							console.log("This is the response for tracking data: ", res.responseText);		
@@ -351,6 +351,7 @@
 			e.stopPropagation();
 			studioRuntime.notify('cancel', {});
 		}
+		debugger;
 		updateBindObj();
 		
 		var finalTableStructure = ko.mapping.toJS(studioBindObj);
@@ -362,11 +363,18 @@
 		window.fullTableStructure[studioBindObj.currentStructure()] = finalTableStructure;
 		localStorage.tableStructure = JSON.stringify(window.fullTableStructure);
 		
+		var xAPIConfig = JSON.stringify({
+			user: studioBindObj.user(),
+			pass: studioBindObj.pass(),
+			endpoint: studioBindObj.endpoint()
+		});
+
 		var outObj = JSON.stringify({
 			tableStructure: JSON.stringify(window.fullTableStructure), 
 			showColumns: JSON.stringify(visibleColumnsList), 
 			displayName: finalTableStructure.displayName, 
-			currentStructure: studioBindObj.currentStructure()
+			currentStructure: studioBindObj.currentStructure(),
+			xAPIConfig: xAPIConfig
 		});
 
 		$.ajax({
@@ -488,7 +496,7 @@
 			  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
 			  headers: {
 				"X-Experience-API-Version": "1.0",
-				"Authorization": "Basic " + btoa("user:pass")
+				"Authorization": "Basic " + btoa("edxBridge:BasicAuthIsKindaLame")
 			  },
 			  complete: function(res){
 				console.log("This is the response for tracking data: ", res.responseText);
@@ -589,8 +597,29 @@
 		studioBindObj.allStructures = ko.observableArray(Object.keys(window.fullTableStructure));
 		studioBindObj.currentStructure = ko.observable(currentStructure);
 		studioBindObj.currentStructure.subscribe(currentStructChange);
+		
+		var xapi = getXAPIConfig();
+		studioBindObj.user = ko.observable(xapi.user);
+		studioBindObj.pass = ko.observable(xapi.pass);
+		studioBindObj.endpoint = ko.observable(xapi.endpoint);
 
 		updateBindObj();
+		
+		function getXAPIConfig(){
+			var ret;
+			try{
+				ret = JSON.parse('{{xAPIConfig}}');
+			}
+			catch(e){
+				ret = {
+					user: '',
+					pass: '', 
+					endpoint: ''
+				};
+			}
+
+			return ret;
+		}
 		
 		function currentStructChange(newVal){
 

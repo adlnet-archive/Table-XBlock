@@ -47,6 +47,7 @@ class TableXBlock(XBlock):
 	userRows = Dict(default={}, scope=Scope.preferences, help="User row preferences")
 	currentStructure = String(default="Table", scope=Scope.content, help="Key representing current structure")
 	display_name = String(display_name="Table XBlock", default="Table XBlock", scope=Scope.settings, help="Name of the component in the edxplatform")
+	xAPIConfig = String(display_name="xAPIConfig", default="{user:'', pass:'', endpoint: ''}", scope=Scope.settings)
 
 	# TO-DO: delete count, and define your own fields.
 	count = Integer(
@@ -85,7 +86,8 @@ class TableXBlock(XBlock):
 		jsStr = jsStr.replace('{{display_name}}', self.display_name)
 		jsStr = jsStr.replace('{{randFuncName}}', randNum)
 		jsStr = jsStr.replace('{{currentStructure}}', self.currentStructure)
-		
+		jsStr = jsStr.replace('{{xAPIConfig}}', self.xAPIConfig)
+
 		frag.add_javascript(jsStr)
 		frag.initialize_js('TableXBlock' + randNum)
 		return frag
@@ -108,11 +110,12 @@ class TableXBlock(XBlock):
 		# Just to show data coming in...
 		#assert data['hello'] == 'world'
 		
-		self.display_name = data['displayName']
-		self.currentStructure = data['currentStructure']
-		self.s_tableStructure = data['tableStructure']
-		self.s_showColumns = data['showColumns']
-		
+		#self.display_name = data['displayName']
+		#self.currentStructure = data['currentStructure']
+		#self.s_tableStructure = data['tableStructure']
+		#self.s_showColumns = data['showColumns']
+		self.xAPIConfig = data['xAPIConfig']
+
 		return data
 
 
