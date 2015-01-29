@@ -328,7 +328,8 @@
 		});
 		
 		ko.applyBindings(bindObj, (element instanceof $ ? element[0] : element));
-		window.setInterval(syncStateInfo, 30000);
+		
+		 window.setInterval(syncStateInfo, 30000);
 	}
 	/* Javascript for studio view TableXBlock. */
 	window.StudioTableXBlock = function(runtime, element) {
@@ -351,7 +352,7 @@
 			e.stopPropagation();
 			studioRuntime.notify('cancel', {});
 		}
-		debugger;
+		
 		updateBindObj();
 		
 		var finalTableStructure = ko.mapping.toJS(studioBindObj);
@@ -490,54 +491,56 @@
 	}
 	
 	function syncStateInfo(syncCompleteCB){
-		initStateAPI(function(queryArgs){
-			$.ajax({
-			  type: "GET",
-			  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
-			  headers: {
-				"X-Experience-API-Version": "1.0",
-				"Authorization": "Basic " + btoa("edxBridge:BasicAuthIsKindaLame")
-			  },
-			  complete: function(res){
-				console.log("This is the response for tracking data: ", res.responseText);
-				
-				var rows = false;
-				try{
-					rows = JSON.parse(res.responseText)['rows'];
-				}
-				catch(e){
-					console.error("Unable to parse responseText: ", rows);
-				}
-				
-				//Find index of completed column
-				var completedIndex = -1;
-				for(var i = 0; i < bindObj.columns().length; i++){
-					if(bindObj.columns()[i].name == "Completed"){
-						completedIndex = i;
-						break;
+		if(studioBindObj.endpoint()){
+			initStateAPI(function(queryArgs){
+				$.ajax({
+				  type: "GET",
+				  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
+				  headers: {
+					"X-Experience-API-Version": "1.0",
+					"Authorization": "Basic " + btoa("edxBridge:BasicAuthIsKindaLame")
+				  },
+				  complete: function(res){
+					console.log("This is the response for tracking data: ", res.responseText);
+					
+					var rows = false;
+					try{
+						rows = JSON.parse(res.responseText)['rows'];
 					}
-				}
-				
-				if(rows && completedIndex > -1){
-					for(var i = 0; i < rows.length && i < bindObj.rows().length; i++){
-						var oldChildren = bindObj.rows()[i].children();
-						var newChildren = rows[i].children;
-						
-						for(var g = 0; g < oldChildren.length && g < newChildren.length; g++){
-							if(oldChildren[g].values()[completedIndex].v() != true && newChildren[g]["Completed"] === true){
-								//UPDATED COMPLETED STATUS
-								oldChildren[g].values()[completedIndex].v(true);
-							}
+					catch(e){
+						console.error("Unable to parse responseText: ", rows);
+					}
+					
+					//Find index of completed column
+					var completedIndex = -1;
+					for(var i = 0; i < bindObj.columns().length; i++){
+						if(bindObj.columns()[i].name == "Completed"){
+							completedIndex = i;
+							break;
 						}
 					}
-				}	
+					
+					if(rows && completedIndex > -1){
+						for(var i = 0; i < rows.length && i < bindObj.rows().length; i++){
+							var oldChildren = bindObj.rows()[i].children();
+							var newChildren = rows[i].children;
+							
+							for(var g = 0; g < oldChildren.length && g < newChildren.length; g++){
+								if(oldChildren[g].values()[completedIndex].v() != true && newChildren[g]["Completed"] === true){
+									//UPDATED COMPLETED STATUS
+									oldChildren[g].values()[completedIndex].v(true);
+								}
+							}
+						}
+					}	
 
-				saveUserRows(bindObj.rows);
-				if(syncCompleteCB) syncCompleteCB();
-			  },
-			  contentType: "application/json; charset=UTF-8",
-			});		
-		});
+					saveUserRows(bindObj.rows);
+					if(syncCompleteCB) syncCompleteCB();
+				  },
+				  contentType: "application/json; charset=UTF-8",
+				});		
+			});
+		}
 	}
 	
 	function initStateAPI(cb){	
@@ -608,7 +611,7 @@
 		function getXAPIConfig(){
 			var ret;
 			try{
-				ret = JSON.parse('{{xAPIConfig}}');
+				ret = {{xAPIConfig}};
 			}
 			catch(e){
 				ret = {
