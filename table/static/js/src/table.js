@@ -128,11 +128,11 @@
 					initStateAPI(function(queryArgs){
 						$.ajax({
 						  type: "POST",
-						  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
+						  url: studioBindObj.endpoint() + "activities/state?" + queryArgs,
 						  data: JSON.stringify(state),
 						  headers: {
 							"X-Experience-API-Version": "1.0",
-							"Authorization": "Basic " + btoa("edxBridge:BasicAuthIsKindaLame")
+							"Authorization": "Basic " + btoa(studioBindObj.user() + ":" + studioBindObj.pass())
 						  },
 						  complete: function(res){
 							console.log("This is the response for tracking data: ", res.responseText);		
@@ -495,10 +495,10 @@
 			initStateAPI(function(queryArgs){
 				$.ajax({
 				  type: "GET",
-				  url: "http://54.172.172.127:8100/xAPI/activities/state?" + queryArgs,
+				  url: studioBindObj.endpoint() + "activities/state?" + queryArgs,
 				  headers: {
 					"X-Experience-API-Version": "1.0",
-					"Authorization": "Basic " + btoa("edxBridge:BasicAuthIsKindaLame")
+					"Authorization": "Basic " + btoa(studioBindObj.user() + ":" + studioBindObj.password())
 				  },
 				  complete: function(res){
 					console.log("This is the response for tracking data: ", res.responseText);
