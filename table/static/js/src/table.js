@@ -329,7 +329,8 @@
 		
 		ko.applyBindings(bindObj, (element instanceof $ ? element[0] : element));
 		
-		 window.setInterval(syncStateInfo, 30000);
+		syncStateInfo();
+		window.setInterval(syncStateInfo, 30000);
 	}
 	/* Javascript for studio view TableXBlock. */
 	window.StudioTableXBlock = function(runtime, element) {
@@ -491,14 +492,15 @@
 	}
 	
 	function syncStateInfo(syncCompleteCB){
-		if(studioBindObj.endpoint()){
+		//debugger;
+		if(studioBindObj.endpoint && studioBindObj.endpoint()){
 			initStateAPI(function(queryArgs){
 				$.ajax({
 				  type: "GET",
 				  url: studioBindObj.endpoint() + "activities/state?" + queryArgs,
 				  headers: {
 					"X-Experience-API-Version": "1.0",
-					"Authorization": "Basic " + btoa(studioBindObj.user() + ":" + studioBindObj.password())
+					"Authorization": "Basic " + btoa(studioBindObj.user() + ":" + studioBindObj.pass())
 				  },
 				  complete: function(res){
 					console.log("This is the response for tracking data: ", res.responseText);
