@@ -1,3 +1,5 @@
+**This project is no longer being maintained. Please refer all questions to ADL: https://adlnet.gov/contact/**
+
 Table XBlock
 ============
 Table XBlock is powerful tool used to (you guessed it) create user-editable tables in an [edX course](https://www.edx.org/). It supports a high degree of configurability, user interactivity and user tracking with [xAPI](http://www.adlnet.gov/tla/experience-api/faq/). If you're unfamiliar with edX, its open source platform, or XBlocks, then [this may be a good place to start](http://code.edx.org/).
